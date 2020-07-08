@@ -127,43 +127,43 @@ function vals = multiSegmentPlanner(waypoints, times)
         for k = 1:size(waypoints{1, i}, 1)
              if k == 1
                  der1Traj = calcDerTraj(timeIndex, 1);
-                 currRow = zeros(1, 2 * (numWP - 2));
-                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 1)) ...
-                 = der1Traj;
-                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
+                 = der1Traj
+                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              elseif k == 2
                  der2Traj = calcDerTraj(timeIndex, 2);
-                 currRow = zeros(1, 2 * (numWP - 2));
-                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 1)) ...
-                 = der2Traj;
-                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
+                 = der2Traj
+                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              elseif k == 3
                  der3Traj = calcDerTraj(timeIndex, 3);
-                 currRow = zeros(1, 2 * (numWP - 2));
-                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 1)) ...
-                 = der3Traj;
-                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
+                 = der3Traj
+                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              end         
         end
         for k = 1:size(waypoints{1, i}, 1)
              if k == 1
                  der1Traj = calcDerTraj(timeIndex, 1);
-                 currRow = zeros(1, 2 * (numWP - 2));
-                 currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der1Traj, 1)) ...
-                 = der1Traj;
-                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der1Traj, 2)) ...
+                 = der1Traj
+                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              elseif k == 2
                  der2Traj = calcDerTraj(timeIndex, 2);
-                 currRow = zeros(1, 2 * (numWP - 2));
-                 currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der2Traj, 1)) ...
-                 = der2Traj;
-                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der2Traj, 2)) ...
+                 = der2Traj
+                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              elseif k == 3
                  der3Traj = calcDerTraj(timeIndex, 3);
-                 currRow = zeros(1, 2 * (numWP - 2));
-                 currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der3Traj, 1)) ...
-                 = der3Traj;
-                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der3Traj, 2)) ...
+                 = der3Traj
+                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              end         
         end
     end
@@ -173,13 +173,16 @@ function vals = multiSegmentPlanner(waypoints, times)
     for i = 1:size(waypoints{1, size(waypoints, 2)}, 1)
         if i == 1
             AValsLastRow = ...
-            [AValsLastRow ; calcDerTraj(1, 1) ,  zeros(1, size(A, 2) - size(calcDerTraj(size(waypoints, 2) - 1, 1), 2))]; 
+            [AValsLastRow ; zeros(1, size(A, 2) - size(calcDerTraj(size(waypoints, 2) - 1, 1), 2)), ...
+            calcDerTraj(size(waypoints, 2) - 1, 1)]; 
         elseif i == 2
             AValsLastRow = ...
-            [AValsLastRow ; calcDerTraj(1, 2) ,  zeros(1, size(A, 2) - size(calcDerTraj(size(waypoints, 2) - 1, 2), 2))]; 
+            [AValsLastRow ; zeros(1, size(A, 2) - size(calcDerTraj(size(waypoints, 2) - 1, 2), 2)), ...
+            calcDerTraj(size(waypoints, 2) - 1, 2)]; 
         elseif i == 3
             AValsLastRow = ...
-            [AValsLastRow ; calcDerTraj(1, 3) ,  zeros(1, size(A, 2) - size(calcDerTraj(size(waypoints, 2) - 1, 3), 2))]; 
+            [AValsLastRow ; zeros(1, size(A, 2) - size(calcDerTraj(size(waypoints, 2) - 1, 3), 2)), ...
+            calcDerTraj(size(waypoints, 2) - 1, 3)]; 
         end
     end
     A = [A ; AValsLastRow];
