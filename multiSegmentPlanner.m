@@ -126,37 +126,42 @@ function vals = multiSegmentPlanner(waypoints, times)
              if k == 1
                  der1Traj = calcDerTraj(timeIndex, 1);
                  currRow = zeros(1, 2 * (numWP - 2));
-                 currRow(8*ceil((j-1-2) / 2)) + 1 : (8*ceil((j-1-2) / 2) + size(der1Traj, 1))) ...
+                 currRow(1, 8*ceil((i - 3) / 2) + 1 : (8*ceil((i - 3) / 2) + size(der1Traj, 1))) ...
                  = der1Traj;
                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              elseif k == 2
                  der2Traj = calcDerTraj(timeIndex, 2);
-                 A(addValsA + size(waypoints{1,j-1}, 1) + k, ...
-                 (8*ceil((j-1-2) / 2)) + 1 : (8*ceil((j-1-2) / 2) + + size(der2Traj, 1))) ...
+                 currRow = zeros(1, 2 * (numWP - 2));
+                 currRow(1, 8*ceil((i - 3) / 2) + 1 : (8*ceil((i - 3) / 2) + size(der2Traj, 1))) ...
                  = der2Traj;
+                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              elseif k == 3
                  der3Traj = calcDerTraj(timeIndex, 3);
-                 A(addValsA + size(waypoints{1,j-1}, 1) + k, ...
-                 (8*ceil((j-1-2) / 2)) + 1 : (8*ceil((j-1-2) / 2) + + size(der3Traj, 1))) ...
+                 currRow = zeros(1, 2 * (numWP - 2));
+                 currRow(1, 8*ceil((i - 3) / 2) + 1 : (8*ceil((i - 3) / 2) + size(der3Traj, 1))) ...
                  = der3Traj;
+                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              end         
         end
         for k = 1:size(waypoints{1, i}, 1)
              if k == 1
                  der1Traj = calcDerTraj(timeIndex, 1);
-                 
-                 (8*ceil((j-1-2) / 2)) + 1 : (8*ceil((j-1-2) / 2) + size(der1Traj, 1))) ...
+                 currRow = zeros(1, 2 * (numWP - 2));
+                 currRow(1, 8*ceil((i - 2) / 2) + 1 : (8*ceil((i - 2) / 2) + size(der1Traj, 1))) ...
                  = der1Traj;
+                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              elseif k == 2
                  der2Traj = calcDerTraj(timeIndex, 2);
-                 A(addValsA + size(waypoints{1,j-1}, 1) + k, ...
-                 (8*ceil((j-1-2) / 2)) + 1 : (8*ceil((j-1-2) / 2) + + size(der2Traj, 1))) ...
+                 currRow = zeros(1, 2 * (numWP - 2));
+                 currRow(1, 8*ceil((i - 2) / 2) + 1 : (8*ceil((i - 2) / 2) + size(der2Traj, 1))) ...
                  = der2Traj;
+                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              elseif k == 3
                  der3Traj = calcDerTraj(timeIndex, 3);
-                 A(addValsA + size(waypoints{1,j-1}, 1) + k, ...
-                 (8*ceil((j-1-2) / 2)) + 1 : (8*ceil((j-1-2) / 2) + + size(der3Traj, 1))) ...
+                 currRow = zeros(1, 2 * (numWP - 2));
+                 currRow(1, 8*ceil((i - 2) / 2) + 1 : (8*ceil((i - 2) / 2) + size(der3Traj, 1))) ...
                  = der3Traj;
+                AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              end         
         end
     end
