@@ -85,7 +85,7 @@ function vals = multiSegmentPlanner(waypoints, times)
     each waypoint
     %}
     
-    numTraj = numWP - 1; %#ok<NASGU>
+    numTraj = numWP - 1;
     % starting row to add the value constraints to A
     % addValsA = size(b,1) + 1;
     
@@ -194,35 +194,35 @@ function vals = multiSegmentPlanner(waypoints, times)
     %}
     
     % assume ICs at starting and ending WPs must be given
-    for i = 3:size(waypoints, 2) - 1
-        timeIndex = i - 1;
-        indicesUnknowns = find(waypoints{1, i} == pi);
-        indicesKnowns = find(waypoints{1, i} ~= pi); %#ok<NASGU>
-        for k = 1:size(indicesUnknowns, 2)
-            currentIndexUnknown = indicesUnknown(1, k);
-            waypoints{1,i}(currentIndexUnknown, 1);
-             if k == 1
-                 der1Traj = calcDerTraj(times, timeIndex, 1);
-                 currRow = zeros(1, 8 * (numWP - 1));
-                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
-                 = der1Traj;
-                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             elseif k == 2
-                 der2Traj = calcDerTraj(times, timeIndex, 2);
-                 currRow = zeros(1, 8 * (numWP - 1));
-                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
-                 = der2Traj;
-                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             elseif k == 3
-                 der3Traj = calcDerTraj(times, timeIndex, 3);
-                 currRow = zeros(1, 8 * (numWP - 1));
-                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
-                 = der3Traj;
-                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             end         
-        end
-    end
-    
+%     for i = 3:size(waypoints, 2) - 1
+%         timeIndex = i - 1;
+%         indicesUnknowns = find(waypoints{1, i} == pi);
+%         indicesKnowns = find(waypoints{1, i} ~= pi); %#ok<NASGU>
+%         for k = 1:size(indicesUnknowns, 2)
+%             currentIndexUnknown = indicesUnknown(1, k);
+%             waypoints{1,i}(currentIndexUnknown, 1);
+%              if k == 1
+%                  der1Traj = calcDerTraj(times, timeIndex, 1);
+%                  currRow = zeros(1, 8 * (numWP - 1));
+%                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
+%                  = der1Traj;
+%                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+%              elseif k == 2
+%                  der2Traj = calcDerTraj(times, timeIndex, 2);
+%                  currRow = zeros(1, 8 * (numWP - 1));
+%                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
+%                  = der2Traj;
+%                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+%              elseif k == 3
+%                  der3Traj = calcDerTraj(times, timeIndex, 3);
+%                  currRow = zeros(1, 8 * (numWP - 1));
+%                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
+%                  = der3Traj;
+%                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+%              end         
+%         end
+%     end
+%     
     x = A \ b;
     sizeSol = size(x, 1);
     
@@ -243,6 +243,12 @@ function vals = multiSegmentPlanner(waypoints, times)
         i = i + 8;
         timeIndex = timeIndex + 1;
     end
+    collectNames = cell(1, numTraj);
+    for i = 1:numTraj
+        text = strcat("trajectory ", num2str(i));
+        collectNames{1,i} = text;
+    end
+    legend(collectNames);
     hold off
     
     i = 1;
@@ -261,6 +267,12 @@ function vals = multiSegmentPlanner(waypoints, times)
         i = i + 8;
         timeIndex = timeIndex + 1;
     end
+    collectNames = cell(1, numTraj);
+    for i = 1:numTraj
+        text = strcat("trajectory ", num2str(i));
+        collectNames{1,i} = text;
+    end
+    legend(collectNames);
     hold off
     
     i = 1;
@@ -280,6 +292,12 @@ function vals = multiSegmentPlanner(waypoints, times)
         i = i + 8;
         timeIndex = timeIndex + 1;
     end
+    collectNames = cell(1, numTraj);
+    for i = 1:numTraj
+        text = strcat("trajectory ", num2str(i));
+        collectNames{1,i} = text;
+    end
+    legend(collectNames);
     hold off
     
     i = 1;
@@ -300,6 +318,12 @@ function vals = multiSegmentPlanner(waypoints, times)
         i = i + 8;
         timeIndex = timeIndex + 1;
     end
+    collectNames = cell(1, numTraj);
+    for i = 1:numTraj
+        text = strcat("trajectory ", num2str(i));
+        collectNames{1,i} = text;
+    end
+    legend(collectNames);
     hold off
     
     
