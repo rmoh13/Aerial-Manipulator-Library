@@ -20,14 +20,21 @@ the next columns are column vectors of vel, accel, jerk at each position
 in that order
 
 times is a column vector of time points for the time segments
-assume they're given in order in the waypoints cell and if there's 
-nothing at a cer
 %}
 
+% waypoints must be a cell array, times must be a column vector
+%{
+note that for any value in the intermediary WPs, if the user 
+can't/doesn't want to give a value at a specific WP, either leave
+the entire column vector empty so they don't provide any ICs at the WP
+or put a pi for DNE values. Example, if user wants to only provide
+acceleration at one of the waypoints, give a value for acceleration
+at that space in the column and put pi everywhere else
+%}
 function vals = multiSegmentPlanner(waypoints, times)
     % in Ax = b, vals is x which is the constraints column vector
     % make waypoints rows, assume each position is given
-    numT = size(times, 1); %#ok<NASGU>
+    numT = size(times, 1);
     positions = waypoints{1,1};
     numWP = size(positions, 1);
     % this should be true: numWP == numT
@@ -112,43 +119,43 @@ function vals = multiSegmentPlanner(waypoints, times)
         for k = 1:size(waypoints{1, i}, 1)
              if k == 1
                  der1Traj = calcDerTraj(times, timeIndex, 1);
-                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
-                 = der1Traj
-                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 = der1Traj;
+                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              elseif k == 2
                  der2Traj = calcDerTraj(times, timeIndex, 2);
-                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
-                 = der2Traj
-                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 = der2Traj;
+                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              elseif k == 3
                  der3Traj = calcDerTraj(times, timeIndex, 3);
-                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
-                 = der3Traj
-                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 = der3Traj;
+                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              end         
         end
         for k = 1:size(waypoints{1, i}, 1)
              if k == 1
                  der1Traj = calcDerTraj(times, timeIndex, 1);
-                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der1Traj, 2)) ...
-                 = der1Traj
-                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 = der1Traj;
+                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              elseif k == 2
                  der2Traj = calcDerTraj(times, timeIndex, 2);
-                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der2Traj, 2)) ...
-                 = der2Traj
-                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 = der2Traj;
+                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              elseif k == 3
                  der3Traj = calcDerTraj(times, timeIndex, 3);
-                 currRow = zeros(1, 8 * (numWP - 1))
+                 currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der3Traj, 2)) ...
-                 = der3Traj
-                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 = der3Traj;
+                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
              end         
         end
     end
@@ -159,25 +166,26 @@ function vals = multiSegmentPlanner(waypoints, times)
     for k = 1:size(waypoints{1, size(waypoints, 2)}, 1)
          if k == 1
              der1Traj = calcDerTraj(times, lastWPIndex, 1);
-             currRow = zeros(1, 8 * (numWP - 1))
+             currRow = zeros(1, 8 * (numWP - 1));
              currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der1Traj, 2)) ...
-             = der1Traj
-             AValsLastRow = [AValsLastRow ; currRow] %#ok<*AGROW>
+             = der1Traj;
+             AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
          elseif k == 2
              der2Traj = calcDerTraj(times, lastWPIndex, 2);
-             currRow = zeros(1, 8 * (numWP - 1))
+             currRow = zeros(1, 8 * (numWP - 1));
              currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der2Traj, 2)) ...
-             = der2Traj
-             AValsLastRow = [AValsLastRow ; currRow] %#ok<*AGROW>
+             = der2Traj;
+             AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
          elseif k == 3
              der3Traj = calcDerTraj(times, lastWPIndex, 3);
-             currRow = zeros(1, 8 * (numWP - 1))
+             currRow = zeros(1, 8 * (numWP - 1));
              currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der3Traj, 2)) ...
-             = der3Traj
-             AValsLastRow = [AValsLastRow ; currRow] %#ok<*AGROW>
+             = der3Traj;
+             AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
          end         
     end
     A = [A ; AValsLastRow];
+    
     %{ 
     the above is working for when all values, meaning the velocities,
     accelerations, and jerks are given at each WP. Now, we have to 
@@ -185,7 +193,116 @@ function vals = multiSegmentPlanner(waypoints, times)
     linear equality constraints as such in the matrix A
     %}
     
+    % assume ICs at starting and ending WPs must be given
+    for i = 3:size(waypoints, 2) - 1
+        timeIndex = i - 1;
+        indicesUnknowns = find(waypoints{1, i} == pi);
+        indicesKnowns = find(waypoints{1, i} ~= pi); %#ok<NASGU>
+        for k = 1:size(indicesUnknowns, 2)
+            currentIndexUnknown = indicesUnknown(1, k);
+            waypoints{1,i}(currentIndexUnknown, 1);
+             if k == 1
+                 der1Traj = calcDerTraj(times, timeIndex, 1);
+                 currRow = zeros(1, 8 * (numWP - 1));
+                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
+                 = der1Traj;
+                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+             elseif k == 2
+                 der2Traj = calcDerTraj(times, timeIndex, 2);
+                 currRow = zeros(1, 8 * (numWP - 1));
+                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
+                 = der2Traj;
+                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+             elseif k == 3
+                 der3Traj = calcDerTraj(times, timeIndex, 3);
+                 currRow = zeros(1, 8 * (numWP - 1));
+                 currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
+                 = der3Traj;
+                 AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
+             end         
+        end
+    end
+    
     x = A \ b;
+    sizeSol = size(x, 1);
+    
+    
+    % now we do the plotting
+    i = 1;
+    timeIndex = 1;
+    subplot(4,1,1);
+    hold on
+    while i < sizeSol
+        posTraj = x(i:i+7).';
+        t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+        y = posTraj;
+        plot(t, polyval(y,t))
+        title("position vs time")
+        xlabel("t")
+        ylabel("x(t)")
+        i = i + 8;
+        timeIndex = timeIndex + 1;
+    end
+    hold off
+    
+    i = 1;
+    timeIndex = 1;
+    subplot(4,1,2);
+    hold on
+    while i < sizeSol
+        posTraj = x(i:i+7).';
+        velTraj = polyder(posTraj);
+        t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+        y = velTraj;
+        plot(t, polyval(y,t))
+        title("velocity vs time")
+        xlabel("t")
+        ylabel("x'(t)")
+        i = i + 8;
+        timeIndex = timeIndex + 1;
+    end
+    hold off
+    
+    i = 1;
+    timeIndex = 1;
+    subplot(4,1,3);
+    hold on
+    while i < sizeSol
+        posTraj = x(i:i+7).';
+        velTraj = polyder(posTraj);
+        accelTraj = polyder(velTraj);
+        t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+        y = accelTraj;
+        plot(t, polyval(y,t))
+        title("acceleration vs time")
+        xlabel("t")
+        ylabel("x''(t)")
+        i = i + 8;
+        timeIndex = timeIndex + 1;
+    end
+    hold off
+    
+    i = 1;
+    timeIndex = 1;
+    subplot(4,1,4);
+    hold on
+    while i < sizeSol
+        posTraj = x(i:i+7).';
+        velTraj = polyder(posTraj);
+        accelTraj = polyder(velTraj);
+        jerkTraj = polyder(accelTraj);
+        t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+        y = jerkTraj;
+        plot(t, polyval(y,t))
+        title("jerk vs time")
+        xlabel("t")
+        ylabel("x'''(t)")
+        i = i + 8;
+        timeIndex = timeIndex + 1;
+    end
+    hold off
+    
+    
     vals = {A, b, x};
 end
 
@@ -199,13 +316,22 @@ function derTraj = calcDerTraj(times, timeIndex, nthDer)
         derCoeff = polyder(normCoeff);
         der2Coeff = polyder(derCoeff);   
         der3Coeff = polyder(der2Coeff);   
+        der4Coeff = polyder(der3Coeff);
+        der5Coeff = polyder(der4Coeff);
+        der6Coeff = polyder(der5Coeff);
         if nthDer == 0
             derTraj = traj;
         elseif nthDer == 1
-            derTraj = derCoeff.*traj(2:size(traj, 2));
+            derTraj = derCoeff.*traj(nthDer+1:size(traj, 2));
         elseif nthDer == 2
-            derTraj = der2Coeff.*traj(3:size(traj, 2));
+            derTraj = der2Coeff.*traj(nthDer+1:size(traj, 2));
         elseif nthDer == 3
-            derTraj = der3Coeff.*traj(4:size(traj, 2));
+            derTraj = der3Coeff.*traj(nthDer+1:size(traj, 2));
+        elseif nthDer == 4
+            derTraj = der4Coeff.*traj(nthDer+1:size(traj, 2));
+        elseif nthDer == 5
+            derTraj = der5Coeff.*traj(nthDer+1:size(traj, 2));
+        elseif nthDer == 6
+            derTraj = der6Coeff.*traj(nthDer+1:size(traj, 2));
         end
 end
