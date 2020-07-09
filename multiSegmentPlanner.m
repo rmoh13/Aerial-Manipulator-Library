@@ -89,11 +89,11 @@ function vals = multiSegmentPlanner(waypoints, times)
     % do the first row of the corresponding value constraints in A
     for i = 1:size(waypoints{1, 2}, 1)
         if i == 1
-            AValsFirstRow = [AValsFirstRow ; calcDerTraj(1, 1) ,  zeros(1, size(A, 2) - size(calcDerTraj(1, 1), 2))]; 
+            AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 1) ,  zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 1), 2))]; 
         elseif i == 2
-            AValsFirstRow = [AValsFirstRow ; calcDerTraj(1, 2) ,  zeros(1, size(A, 2) - size(calcDerTraj(1, 2), 2))]; 
+            AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 2) ,  zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 2), 2))]; 
         elseif i == 3
-            AValsFirstRow = [AValsFirstRow ; calcDerTraj(1, 3) ,  zeros(1, size(A, 2) - size(calcDerTraj(1, 3), 2))]; 
+            AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 3) ,  zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 3), 2))]; 
         end
     end
     A = [A ; AValsFirstRow];
@@ -105,95 +105,107 @@ function vals = multiSegmentPlanner(waypoints, times)
         j = j + 1;
     end
     bVals = [bVals ; waypoints{1, size(waypoints, 2)}];
-    b = [b ; bVals]; %#ok<NASGU>
+    b = [b ; bVals];
     AInBetween = [];
     for i = 3:size(waypoints, 2) - 1
         timeIndex = i - 1;
         for k = 1:size(waypoints{1, i}, 1)
              if k == 1
-                 der1Traj = calcDerTraj(timeIndex, 1);
+                 der1Traj = calcDerTraj(times, timeIndex, 1);
                  currRow = zeros(1, 8 * (numWP - 1))
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
                  = der1Traj
-                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              elseif k == 2
-                 der2Traj = calcDerTraj(timeIndex, 2);
+                 der2Traj = calcDerTraj(times, timeIndex, 2);
                  currRow = zeros(1, 8 * (numWP - 1))
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
                  = der2Traj
-                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              elseif k == 3
-                 der3Traj = calcDerTraj(timeIndex, 3);
+                 der3Traj = calcDerTraj(times, timeIndex, 3);
                  currRow = zeros(1, 8 * (numWP - 1))
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
                  = der3Traj
-                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              end         
         end
         for k = 1:size(waypoints{1, i}, 1)
              if k == 1
-                 der1Traj = calcDerTraj(timeIndex, 1);
+                 der1Traj = calcDerTraj(times, timeIndex, 1);
                  currRow = zeros(1, 8 * (numWP - 1))
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der1Traj, 2)) ...
                  = der1Traj
-                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              elseif k == 2
-                 der2Traj = calcDerTraj(timeIndex, 2);
+                 der2Traj = calcDerTraj(times, timeIndex, 2);
                  currRow = zeros(1, 8 * (numWP - 1))
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der2Traj, 2)) ...
                  = der2Traj
-                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              elseif k == 3
-                 der3Traj = calcDerTraj(timeIndex, 3);
+                 der3Traj = calcDerTraj(times, timeIndex, 3);
                  currRow = zeros(1, 8 * (numWP - 1))
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der3Traj, 2)) ...
                  = der3Traj
-                AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
+                 AInBetween = [AInBetween ; currRow] %#ok<*AGROW>
              end         
         end
     end
     A = [A ; AInBetween];
     % now do the last row
     AValsLastRow = [];
-    for i = 1:size(waypoints{1, size(waypoints, 2)}, 1)
-        if i == 1
-            AValsLastRow = ...
-            [AValsLastRow ; zeros(1, size(A, 2) - size(calcDerTraj(size(waypoints, 2) - 1, 1), 2)), ...
-            calcDerTraj(size(waypoints, 2) - 1, 1)]; 
-        elseif i == 2
-            AValsLastRow = ...
-            [AValsLastRow ; zeros(1, size(A, 2) - size(calcDerTraj(size(waypoints, 2) - 1, 2), 2)), ...
-            calcDerTraj(size(waypoints, 2) - 1, 2)]; 
-        elseif i == 3
-            AValsLastRow = ...
-            [AValsLastRow ; zeros(1, size(A, 2) - size(calcDerTraj(size(waypoints, 2) - 1, 3), 2)), ...
-            calcDerTraj(size(waypoints, 2) - 1, 3)]; 
-        end
+    lastWPIndex = size(waypoints, 2) - 1;
+    for k = 1:size(waypoints{1, size(waypoints, 2)}, 1)
+         if k == 1
+             der1Traj = calcDerTraj(times, lastWPIndex, 1);
+             currRow = zeros(1, 8 * (numWP - 1))
+             currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der1Traj, 2)) ...
+             = der1Traj
+             AValsLastRow = [AValsLastRow ; currRow] %#ok<*AGROW>
+         elseif k == 2
+             der2Traj = calcDerTraj(times, lastWPIndex, 2);
+             currRow = zeros(1, 8 * (numWP - 1))
+             currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der2Traj, 2)) ...
+             = der2Traj
+             AValsLastRow = [AValsLastRow ; currRow] %#ok<*AGROW>
+         elseif k == 3
+             der3Traj = calcDerTraj(times, lastWPIndex, 3);
+             currRow = zeros(1, 8 * (numWP - 1))
+             currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der3Traj, 2)) ...
+             = der3Traj
+             AValsLastRow = [AValsLastRow ; currRow] %#ok<*AGROW>
+         end         
     end
     A = [A ; AValsLastRow];
+    %{ 
+    the above is working for when all values, meaning the velocities,
+    accelerations, and jerks are given at each WP. Now, we have to 
+    account for values not given and go case by case to give the
+    linear equality constraints as such in the matrix A
+    %}
     
-    vals = A;
+    x = A \ b;
+    vals = {A, b, x};
 end
 
-function derTraj = calcDerTraj(timeIndex, nthDer)
+function derTraj = calcDerTraj(times, timeIndex, nthDer)
     % we are assuming a 7th order polynomial for the trajectory (min. snap)
     traj = [times(timeIndex, 1)^7 times(timeIndex, 1)^6 ...
             times(timeIndex, 1)^5 times(timeIndex, 1)^4 ...
             times(timeIndex, 1)^3 times(timeIndex, 1)^2 ...
-            times(timeIndex, 1)^1 times(timeIndex, 1)^0];
-        sizeTraj = size(traj,2);
-        dTraj = (sizeTraj-1:-1:1).*traj(1:sizeTraj-1);
-        size2Traj = size(dTraj,2);
-        d2Traj = (size2Traj-1:-1:1).*dTraj(1:size2Traj-1);
-        size3Traj = size(d2Traj,2);
-        d3Traj = (size3Traj-1:-1:1).*d2Traj(1:size3Traj-1);
+            times(timeIndex, 1)^1 times(timeIndex, 1)^0];    
+        normCoeff = [1 1 1 1 1 1 1 1];
+        derCoeff = polyder(normCoeff);
+        der2Coeff = polyder(derCoeff);   
+        der3Coeff = polyder(der2Coeff);   
         if nthDer == 0
             derTraj = traj;
         elseif nthDer == 1
-            derTraj = dTraj;
+            derTraj = derCoeff.*traj(2:size(traj, 2));
         elseif nthDer == 2
-            derTraj = d2Traj;
+            derTraj = der2Coeff.*traj(3:size(traj, 2));
         elseif nthDer == 3
-            derTraj = d3Traj;
+            derTraj = der3Coeff.*traj(4:size(traj, 2));
         end
 end
