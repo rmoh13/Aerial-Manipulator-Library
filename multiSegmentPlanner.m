@@ -95,12 +95,15 @@ function vals = multiSegmentPlanner(waypoints, times)
     AValsFirstRow = [];
     % do the first row of the corresponding value constraints in A
     for i = 1:size(waypoints{1, 2}, 1)
-        if i == 1
-            AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 1) ,  zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 1), 2))]; 
-        elseif i == 2
-            AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 2) ,  zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 2), 2))]; 
-        elseif i == 3
-            AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 3) ,  zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 3), 2))]; 
+        if i == 1 && waypoints{1,2}(i, 1) ~= pi
+            AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 1) , ...  
+            zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 1), 2))]; 
+        elseif i == 2 && waypoints{1,2}(i, 1) ~= pi
+            AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 2) , ...
+            zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 2), 2))]; 
+        elseif i == 3 && waypoints{1,2}(i, 1) ~= pi
+            AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 3) , ... 
+            zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 3), 2))]; 
         end
     end
     A = [A ; AValsFirstRow];
@@ -108,7 +111,13 @@ function vals = multiSegmentPlanner(waypoints, times)
     % now go in between
     j = 3;
     while j < size(waypoints, 2)
-        bVals = [bVals ; waypoints{1,j}; waypoints{1,j}]; 
+        currentCol = [];
+        for k = 1:size(waypoints{1,j}, 1)
+            if waypoints{1,j}(k, 1) ~= pi
+                currentCol = [currentCol ; waypoints{1,j}(k, 1)];
+            end
+        end
+        bVals = [bVals ; currentCol; currentCol]; 
         j = j + 1;
     end
     bVals = [bVals ; waypoints{1, size(waypoints, 2)}];
@@ -117,19 +126,19 @@ function vals = multiSegmentPlanner(waypoints, times)
     for i = 3:size(waypoints, 2) - 1
         timeIndex = i - 1;
         for k = 1:size(waypoints{1, i}, 1)
-             if k == 1
+             if k == 1 && waypoints{1,i}(k, 1) ~= pi
                  der1Traj = calcDerTraj(times, timeIndex, 1);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
                  = der1Traj;
                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             elseif k == 2
+             elseif k == 2 && waypoints{1,i}(k, 1) ~= pi
                  der2Traj = calcDerTraj(times, timeIndex, 2);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
                  = der2Traj;
                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             elseif k == 3
+             elseif k == 3 && waypoints{1,i}(k, 1) ~= pi
                  der3Traj = calcDerTraj(times, timeIndex, 3);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
@@ -138,19 +147,19 @@ function vals = multiSegmentPlanner(waypoints, times)
              end         
         end
         for k = 1:size(waypoints{1, i}, 1)
-             if k == 1
+             if k == 1 && waypoints{1,i}(k, 1) ~= pi
                  der1Traj = calcDerTraj(times, timeIndex, 1);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der1Traj, 2)) ...
                  = der1Traj;
                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             elseif k == 2
+             elseif k == 2 && waypoints{1,i}(k, 1) ~= pi
                  der2Traj = calcDerTraj(times, timeIndex, 2);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der2Traj, 2)) ...
                  = der2Traj;
                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             elseif k == 3
+             elseif k == 3 && waypoints{1,i}(k, 1) ~= pi
                  der3Traj = calcDerTraj(times, timeIndex, 3);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der3Traj, 2)) ...
@@ -164,19 +173,19 @@ function vals = multiSegmentPlanner(waypoints, times)
     AValsLastRow = [];
     lastWPIndex = size(waypoints, 2) - 1;
     for k = 1:size(waypoints{1, size(waypoints, 2)}, 1)
-         if k == 1
+         if k == 1 && waypoints{1,size(waypoints, 2)}(k, 1) ~= pi
              der1Traj = calcDerTraj(times, lastWPIndex, 1);
              currRow = zeros(1, 8 * (numWP - 1));
              currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der1Traj, 2)) ...
              = der1Traj;
              AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
-         elseif k == 2
+         elseif k == 2 && waypoints{1,size(waypoints, 2)}(k, 1) ~= pi
              der2Traj = calcDerTraj(times, lastWPIndex, 2);
              currRow = zeros(1, 8 * (numWP - 1));
              currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der2Traj, 2)) ...
              = der2Traj;
              AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
-         elseif k == 3
+         elseif k == 3 && waypoints{1,size(waypoints, 2)}(k, 1) ~= pi
              der3Traj = calcDerTraj(times, lastWPIndex, 3);
              currRow = zeros(1, 8 * (numWP - 1));
              currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der3Traj, 2)) ...
@@ -194,35 +203,114 @@ function vals = multiSegmentPlanner(waypoints, times)
     %}
     
     % assume ICs at starting and ending WPs must be given
-%     for i = 3:size(waypoints, 2) - 1
-%         timeIndex = i - 1;
-%         indicesUnknowns = find(waypoints{1, i} == pi);
-%         indicesKnowns = find(waypoints{1, i} ~= pi); %#ok<NASGU>
-%         for k = 1:size(indicesUnknowns, 2)
-%             currentIndexUnknown = indicesUnknown(1, k);
-%             waypoints{1,i}(currentIndexUnknown, 1);
-%              if k == 1
-%                  der1Traj = calcDerTraj(times, timeIndex, 1);
-%                  currRow = zeros(1, 8 * (numWP - 1));
-%                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
-%                  = der1Traj;
-%                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-%              elseif k == 2
-%                  der2Traj = calcDerTraj(times, timeIndex, 2);
-%                  currRow = zeros(1, 8 * (numWP - 1));
-%                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
-%                  = der2Traj;
-%                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-%              elseif k == 3
-%                  der3Traj = calcDerTraj(times, timeIndex, 3);
-%                  currRow = zeros(1, 8 * (numWP - 1));
-%                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
-%                  = der3Traj;
-%                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-%              end         
-%         end
-%     end
-%     
+    AUnknowns = [];
+    bUnknowns = [];
+    for i = 3:size(waypoints, 2) - 1
+        timeIndex = i - 1;
+        indicesUnknowns = find(waypoints{1, i} == pi);
+        if size(indicesUnknowns, 1) ~= 0
+            for k = 1:size(waypoints{1, i}, 1)
+                %currentIndexUnknown = indicesUnknowns(1, k);
+                %waypoints{1,i}(currentIndexUnknown, 1);
+                 %{
+                 if velocity is unknown, add two constraints: the velocity
+                 equality constraint and the 4th derivative constraint
+                 %}
+                 if k == 1 && waypoints{1,i}(k, 1) == pi
+                     % velocity equality constraint
+                     der1Traj = calcDerTraj(times, timeIndex, 1);
+                     currRow = zeros(1, 8 * (numWP - 1));
+                     currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
+                     = der1Traj;
+                     currRow2 = zeros(1, 8 * (numWP - 1));
+                     der1Traj2 = -1 * der1Traj;
+                     currRow2(1, 8*(i-2) + 1 : 8*(i-2) + size(der1Traj, 2)) ...
+                     = der1Traj2;
+                     currRow = currRow + currRow2;
+                     AUnknowns = [AUnknowns ; currRow]; %#ok<*AGROW>
+                     bUnknowns = [bUnknowns ; 0];
+
+                     % 4th derivative equality constraint
+                     der4Traj = calcDerTraj(times, timeIndex, 4);
+                     currRow = zeros(1, 8 * (numWP - 1));
+                     currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der4Traj, 2)) ...
+                     = der4Traj;
+                     currRow2 = zeros(1, 8 * (numWP - 1));
+                     der4Traj2 = -1 * der4Traj;
+                     currRow2(1, 8*(i-2) + 1 : 8*(i-2) + size(der4Traj, 2)) ...
+                     = der4Traj2;
+                     currRow = currRow + currRow2;
+                     AUnknowns = [AUnknowns ; currRow]; %#ok<*AGROW>
+                     bUnknowns = [bUnknowns ; 0];     
+                 %{
+                 if acceleration is unknown, add two constraints: the acceleration
+                 equality constraint and the 5th derivative constraint
+                 %}             
+                 elseif k ==2 && waypoints{1,i}(k, 1) == pi
+                     % acceleration equality constraint
+                     der2Traj = calcDerTraj(times, timeIndex, 2);
+                     currRow = zeros(1, 8 * (numWP - 1));
+                     currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
+                     = der2Traj;
+                     currRow2 = zeros(1, 8 * (numWP - 1));
+                     der2Traj2 = -1 * der2Traj;
+                     currRow2(1, 8*(i-2) + 1 : 8*(i-2) + size(der2Traj, 2)) ...
+                     = der2Traj2;
+                     currRow = currRow + currRow2;
+                     AUnknowns = [AUnknowns ; currRow]; %#ok<*AGROW>
+                     bUnknowns = [bUnknowns ; 0];
+
+                     % 5th derivative equality constraint
+                     der5Traj = calcDerTraj(times, timeIndex, 5);
+                     currRow = zeros(1, 8 * (numWP - 1));
+                     currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der5Traj, 2)) ...
+                     = der5Traj;
+                     currRow2 = zeros(1, 8 * (numWP - 1));
+                     der5Traj2 = -1 * der5Traj;
+                     currRow2(1, 8*(i-2) + 1 : 8*(i-2) + size(der5Traj, 2)) ...
+                     = der5Traj2;
+                     currRow = currRow + currRow2;
+                     AUnknowns = [AUnknowns ; currRow]; %#ok<*AGROW>
+                     bUnknowns = [bUnknowns ; 0];
+                 %{
+                 if jerk is unknown, add two constraints: the jerk
+                 equality constraint and the 6th derivative constraint
+                 %}                 
+                 elseif k == 3 && waypoints{1,i}(k, 1) == pi
+                     % jerk equality constraint
+                     der3Traj = calcDerTraj(times, timeIndex, 3);
+                     currRow = zeros(1, 8 * (numWP - 1));
+                     currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
+                     = der3Traj;
+                     currRow2 = zeros(1, 8 * (numWP - 1));
+                     der3Traj2 = -1 * der3Traj;
+                     currRow2(1, 8*(i-2) + 1 : 8*(i-2) + size(der3Traj, 2)) ...
+                     = der3Traj2;
+                     currRow = currRow + currRow2;
+                     AUnknowns = [AUnknowns ; currRow]; %#ok<*AGROW>
+                     bUnknowns = [bUnknowns ; 0];
+
+                     % 6th derivative equality constraint
+                     der6Traj = calcDerTraj(times, timeIndex, 6);
+                     currRow = zeros(1, 8 * (numWP - 1));
+                     currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der6Traj, 2)) ...
+                     = der6Traj;
+                     currRow2 = zeros(1, 8 * (numWP - 1));
+                     der6Traj2 = -1 * der6Traj;
+                     currRow2(1, 8*(i-2) + 1 : 8*(i-2) + size(der6Traj, 2)) ...
+                     = der6Traj2;
+                     currRow = currRow + currRow2;
+                     AUnknowns = [AUnknowns ; currRow]; %#ok<*AGROW>
+                     bUnknowns = [bUnknowns ; 0];
+                 end         
+            end
+        end
+    end
+    b = [b ; bUnknowns];
+    A = [A ; AUnknowns];
+    size(b)
+    size(A)
+    
     x = A \ b;
     sizeSol = size(x, 1);
     
