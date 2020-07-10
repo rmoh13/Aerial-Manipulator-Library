@@ -27,14 +27,14 @@ times is a column vector of time points for the time segments
 note that for any value in the intermediary WPs, if the user 
 can't/doesn't want to give a value at a specific WP, either leave
 the entire column vector empty so they don't provide any ICs at the WP
-or put a pi for DNE values. Example, if user wants to only provide
+or put a NaN for DNE values. Example, if user wants to only provide
 acceleration at one of the waypoints, give a value for acceleration
-at that space in the column and put pi everywhere else
+at that space in the column and put NaN everywhere else
 %}
 function vals = multiSegmentPlanner(waypoints, times)
     % in Ax = b, vals is x which is the constraints column vector
     % make waypoints rows, assume each position is given
-    numT = size(times, 1);
+    numT = size(times, 1); %#ok<NASGU>
     positions = waypoints{1,1};
     numWP = size(positions, 1);
     % this should be true: numWP == numT
@@ -95,13 +95,13 @@ function vals = multiSegmentPlanner(waypoints, times)
     AValsFirstRow = [];
     % do the first row of the corresponding value constraints in A
     for i = 1:size(waypoints{1, 2}, 1)
-        if i == 1 && waypoints{1,2}(i, 1) ~= pi
+        if i == 1 && ~isnan(waypoints{1,2}(i, 1))
             AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 1) , ...  
             zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 1), 2))]; 
-        elseif i == 2 && waypoints{1,2}(i, 1) ~= pi
+        elseif i == 2 && ~isnan(waypoints{1,2}(i, 1))
             AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 2) , ...
             zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 2), 2))]; 
-        elseif i == 3 && waypoints{1,2}(i, 1) ~= pi
+        elseif i == 3 && ~isnan(waypoints{1,2}(i, 1))
             AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 3) , ... 
             zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 3), 2))]; 
         end
@@ -113,7 +113,7 @@ function vals = multiSegmentPlanner(waypoints, times)
     while j < size(waypoints, 2)
         currentCol = [];
         for k = 1:size(waypoints{1,j}, 1)
-            if waypoints{1,j}(k, 1) ~= pi
+            if ~isnan(waypoints{1,j}(k, 1))
                 currentCol = [currentCol ; waypoints{1,j}(k, 1)];
             end
         end
@@ -126,19 +126,19 @@ function vals = multiSegmentPlanner(waypoints, times)
     for i = 3:size(waypoints, 2) - 1
         timeIndex = i - 1;
         for k = 1:size(waypoints{1, i}, 1)
-             if k == 1 && waypoints{1,i}(k, 1) ~= pi
+             if k == 1 && ~isnan(waypoints{1,i}(k, 1))
                  der1Traj = calcDerTraj(times, timeIndex, 1);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
                  = der1Traj;
                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             elseif k == 2 && waypoints{1,i}(k, 1) ~= pi
+             elseif k == 2 && ~isnan(waypoints{1,i}(k, 1))
                  der2Traj = calcDerTraj(times, timeIndex, 2);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
                  = der2Traj;
                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             elseif k == 3 && waypoints{1,i}(k, 1) ~= pi
+             elseif k == 3 && ~isnan(waypoints{1,i}(k, 1))
                  der3Traj = calcDerTraj(times, timeIndex, 3);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
@@ -147,19 +147,19 @@ function vals = multiSegmentPlanner(waypoints, times)
              end         
         end
         for k = 1:size(waypoints{1, i}, 1)
-             if k == 1 && waypoints{1,i}(k, 1) ~= pi
+             if k == 1 && ~isnan(waypoints{1,i}(k, 1))
                  der1Traj = calcDerTraj(times, timeIndex, 1);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der1Traj, 2)) ...
                  = der1Traj;
                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             elseif k == 2 && waypoints{1,i}(k, 1) ~= pi
+             elseif k == 2 && ~isnan(waypoints{1,i}(k, 1))
                  der2Traj = calcDerTraj(times, timeIndex, 2);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der2Traj, 2)) ...
                  = der2Traj;
                  AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-             elseif k == 3 && waypoints{1,i}(k, 1) ~= pi
+             elseif k == 3 && ~isnan(waypoints{1,i}(k, 1))
                  der3Traj = calcDerTraj(times, timeIndex, 3);
                  currRow = zeros(1, 8 * (numWP - 1));
                  currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der3Traj, 2)) ...
@@ -171,24 +171,24 @@ function vals = multiSegmentPlanner(waypoints, times)
     A = [A ; AInBetween];
     % now do the last row
     AValsLastRow = [];
-    lastWPIndex = size(waypoints, 2) - 1;
+    lastWNaNndex = size(waypoints, 2) - 1;
     for k = 1:size(waypoints{1, size(waypoints, 2)}, 1)
-         if k == 1 && waypoints{1,size(waypoints, 2)}(k, 1) ~= pi
-             der1Traj = calcDerTraj(times, lastWPIndex, 1);
+         if k == 1 && ~isnan(waypoints{1,size(waypoints, 2)}(k, 1))
+             der1Traj = calcDerTraj(times, lastWNaNndex, 1);
              currRow = zeros(1, 8 * (numWP - 1));
-             currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der1Traj, 2)) ...
+             currRow(1, 8*(lastWNaNndex-2) + 1 : 8*(lastWNaNndex-2) + size(der1Traj, 2)) ...
              = der1Traj;
              AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
-         elseif k == 2 && waypoints{1,size(waypoints, 2)}(k, 1) ~= pi
-             der2Traj = calcDerTraj(times, lastWPIndex, 2);
+         elseif k == 2 && ~isnan(waypoints{1,size(waypoints, 2)}(k, 1))
+             der2Traj = calcDerTraj(times, lastWNaNndex, 2);
              currRow = zeros(1, 8 * (numWP - 1));
-             currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der2Traj, 2)) ...
+             currRow(1, 8*(lastWNaNndex-2) + 1 : 8*(lastWNaNndex-2) + size(der2Traj, 2)) ...
              = der2Traj;
              AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
-         elseif k == 3 && waypoints{1,size(waypoints, 2)}(k, 1) ~= pi
-             der3Traj = calcDerTraj(times, lastWPIndex, 3);
+         elseif k == 3 && ~isnan(waypoints{1,size(waypoints, 2)}(k, 1))
+             der3Traj = calcDerTraj(times, lastWNaNndex, 3);
              currRow = zeros(1, 8 * (numWP - 1));
-             currRow(1, 8*(lastWPIndex-2) + 1 : 8*(lastWPIndex-2) + size(der3Traj, 2)) ...
+             currRow(1, 8*(lastWNaNndex-2) + 1 : 8*(lastWNaNndex-2) + size(der3Traj, 2)) ...
              = der3Traj;
              AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
          end         
@@ -207,7 +207,7 @@ function vals = multiSegmentPlanner(waypoints, times)
     bUnknowns = [];
     for i = 3:size(waypoints, 2) - 1
         timeIndex = i - 1;
-        indicesUnknowns = find(waypoints{1, i} == pi);
+        indicesUnknowns = find(isnan(waypoints{1, i}));
         if size(indicesUnknowns, 1) ~= 0
             for k = 1:size(waypoints{1, i}, 1)
                 %currentIndexUnknown = indicesUnknowns(1, k);
@@ -216,7 +216,7 @@ function vals = multiSegmentPlanner(waypoints, times)
                  if velocity is unknown, add two constraints: the velocity
                  equality constraint and the 4th derivative constraint
                  %}
-                 if k == 1 && waypoints{1,i}(k, 1) == pi
+                 if k == 1 && isnan(waypoints{1,i}(k, 1))
                      % velocity equality constraint
                      der1Traj = calcDerTraj(times, timeIndex, 1);
                      currRow = zeros(1, 8 * (numWP - 1));
@@ -246,7 +246,7 @@ function vals = multiSegmentPlanner(waypoints, times)
                  if acceleration is unknown, add two constraints: the acceleration
                  equality constraint and the 5th derivative constraint
                  %}             
-                 elseif k ==2 && waypoints{1,i}(k, 1) == pi
+                 elseif k ==2 && isnan(waypoints{1,i}(k, 1))
                      % acceleration equality constraint
                      der2Traj = calcDerTraj(times, timeIndex, 2);
                      currRow = zeros(1, 8 * (numWP - 1));
@@ -276,7 +276,7 @@ function vals = multiSegmentPlanner(waypoints, times)
                  if jerk is unknown, add two constraints: the jerk
                  equality constraint and the 6th derivative constraint
                  %}                 
-                 elseif k == 3 && waypoints{1,i}(k, 1) == pi
+                 elseif k == 3 && isnan(waypoints{1,i}(k, 1))
                      % jerk equality constraint
                      der3Traj = calcDerTraj(times, timeIndex, 3);
                      currRow = zeros(1, 8 * (numWP - 1));
