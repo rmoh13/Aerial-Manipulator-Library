@@ -22,7 +22,9 @@ classdef (Abstract) Trajectory
     methods (Abstract)
         % obj is like the 'this' keyword in Python or Java 
         dof = getDimensions(obj)
-        traj = getTrajectory(obj) 
+        traj = getTrajectory(obj)
+        obj = setDimensions(obj)
+        obj = setTrajectory(obj)
     end
 end
 
