@@ -46,7 +46,242 @@ classdef MultiSegmentTrajPlanner < Trajectory
             outputArg = obj.Property1 + inputArg;
         end
         
+        
+        
+        function dummyVar = plotPosition(x, times)
+            positions = obj.waypoints{1,1};
+            numWP = size(positions, 1);
+            numTraj = numWP - 1;
+            sizeSol = size(x, 1);
+            i = 1;
+            timeIndex = 1;
+            subplot(1,1,1);
+            hold on
+            while i < sizeSol
+                posTraj = x(i:i+7).';
+                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                y = posTraj;
+                plot(t, polyval(y,t))
+                title("position vs time")
+                xlabel("t")
+                ylabel("x(t)")
+                i = i + 8;
+                timeIndex = timeIndex + 1;
+            end
+            collectNames = cell(1, numTraj);
+            for i = 1:numTraj
+                text = strcat("trajectory ", num2str(i));
+                collectNames{1,i} = text;
+            end
+            legend(collectNames);
+            hold off
+            dummyVar = [];
+        end
+        
+        function dummyVar = plotVelocity(x, times)
+            positions = obj.waypoints{1,1};
+            numWP = size(positions, 1);
+            numTraj = numWP - 1;
+            sizeSol = size(x, 1);
+            i = 1;
+            timeIndex = 1;
+            subplot(1,1,1);
+            hold on
+            while i < sizeSol
+                posTraj = x(i:i+7).';
+                velTraj = polyder(posTraj);
+                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                y = velTraj;
+                plot(t, polyval(y,t))
+                title("velocity vs time")
+                xlabel("t")
+                ylabel("x'(t)")
+                i = i + 8;
+                timeIndex = timeIndex + 1;
+            end
+            collectNames = cell(1, numTraj);
+            for i = 1:numTraj
+                text = strcat("trajectory ", num2str(i));
+                collectNames{1,i} = text;
+            end
+            legend(collectNames);
+            hold off
+            dummyVar = [];
+        end
+        
+        function dummyVar = plotAcceleration(x, times)
+            positions = obj.waypoints{1,1};
+            numWP = size(positions, 1);
+            numTraj = numWP - 1;
+            sizeSol = size(x, 1);
+            i = 1;
+            timeIndex = 1;
+            subplot(1,1,1);
+            hold on
+            while i < sizeSol
+                posTraj = x(i:i+7).';
+                velTraj = polyder(posTraj);
+                accelTraj = polyder(velTraj);
+                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                y = accelTraj;
+                plot(t, polyval(y,t))
+                title("acceleration vs time")
+                xlabel("t")
+                ylabel("x''(t)")
+                i = i + 8;
+                timeIndex = timeIndex + 1;
+            end
+            collectNames = cell(1, numTraj);
+            for i = 1:numTraj
+                text = strcat("trajectory ", num2str(i));
+                collectNames{1,i} = text;
+            end
+            legend(collectNames);
+            hold off
+            dummyVar = [];
+        end
+        
+        function dummyVar = plotJerk(x, times)
+            positions = obj.waypoints{1,1};
+            numWP = size(positions, 1);
+            numTraj = numWP - 1;
+            sizeSol = size(x, 1);
+            i = 1;
+            timeIndex = 1;
+            subplot(1,1,1);
+            hold on
+            while i < sizeSol
+                posTraj = x(i:i+7).';
+                velTraj = polyder(posTraj);
+                accelTraj = polyder(velTraj);
+                jerkTraj = polyder(accelTraj);
+                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                y = jerkTraj;
+                plot(t, polyval(y,t))
+                title("jerk vs time")
+                xlabel("t")
+                ylabel("x'''(t)")
+                i = i + 8;
+                timeIndex = timeIndex + 1;
+            end
+            collectNames = cell(1, numTraj);
+            for i = 1:numTraj
+                text = strcat("trajectory ", num2str(i));
+                collectNames{1,i} = text;
+            end
+            legend(collectNames);
+            hold off
+            dummyVar = [];
+        end
+        
+        function dummyVar = plotAll(x, times)
+            positions = obj.waypoints{1,1};
+            numWP = size(positions, 1);
+            numTraj = numWP - 1;
+            sizeSol = size(x, 1);
+            i = 1;
+            timeIndex = 1;
+            subplot(4,1,1);
+            hold on
+            while i < sizeSol
+                posTraj = x(i:i+7).';
+                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                y = posTraj;
+                plot(t, polyval(y,t))
+                title("position vs time")
+                xlabel("t")
+                ylabel("x(t)")
+                i = i + 8;
+                timeIndex = timeIndex + 1;
+            end
+            collectNames = cell(1, numTraj);
+            for i = 1:numTraj
+                text = strcat("trajectory ", num2str(i));
+                collectNames{1,i} = text;
+            end
+            legend(collectNames);
+            hold off
+    
+            i = 1;
+            timeIndex = 1;
+            subplot(4,1,2);
+            hold on
+            while i < sizeSol
+                posTraj = x(i:i+7).';
+                velTraj = polyder(posTraj);
+                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                y = velTraj;
+                plot(t, polyval(y,t))
+                title("velocity vs time")
+                xlabel("t")
+                ylabel("x'(t)")
+                i = i + 8;
+                timeIndex = timeIndex + 1;
+            end
+            collectNames = cell(1, numTraj);
+            for i = 1:numTraj
+                text = strcat("trajectory ", num2str(i));
+                collectNames{1,i} = text;
+            end
+            legend(collectNames);
+            hold off
+    
+            i = 1;
+            timeIndex = 1;
+            subplot(4,1,3);
+            hold on
+            while i < sizeSol
+                posTraj = x(i:i+7).';
+                velTraj = polyder(posTraj);
+                accelTraj = polyder(velTraj);
+                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                y = accelTraj;
+                plot(t, polyval(y,t))
+                title("acceleration vs time")
+                xlabel("t")
+                ylabel("x''(t)")
+                i = i + 8;
+                timeIndex = timeIndex + 1;
+            end
+            collectNames = cell(1, numTraj);
+            for i = 1:numTraj
+                text = strcat("trajectory ", num2str(i));
+                collectNames{1,i} = text;
+            end
+            legend(collectNames);
+            hold off
+    
+            i = 1;
+            timeIndex = 1;
+            subplot(4,1,4);
+            hold on
+            while i < sizeSol
+                posTraj = x(i:i+7).';
+                velTraj = polyder(posTraj);
+                accelTraj = polyder(velTraj);
+                jerkTraj = polyder(accelTraj);
+                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                y = jerkTraj;
+                plot(t, polyval(y,t))
+                title("jerk vs time")
+                xlabel("t")
+                ylabel("x'''(t)")
+                i = i + 8;
+                timeIndex = timeIndex + 1;
+            end
+            collectNames = cell(1, numTraj);
+            for i = 1:numTraj
+                text = strcat("trajectory ", num2str(i));
+                collectNames{1,i} = text;
+            end
+            legend(collectNames);
+            hold off
+            
+            dummyVar = [];
+        end
+        
         function derTraj = calcDerTraj(times, timeIndex, nthDer)
+            % calculates derivatives as a row for trajectory
             % we are assuming a 7th order polynomial for the trajectory (min. snap)
             traj = [times(timeIndex, 1)^7 times(timeIndex, 1)^6 ...
               times(timeIndex, 1)^5 times(timeIndex, 1)^4 ...
@@ -75,6 +310,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
               derTraj = der6Coeff.*traj(nthDer+1:size(traj, 2));
            end
         end
+        
     end
+    
 end
-
