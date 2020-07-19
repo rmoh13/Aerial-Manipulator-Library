@@ -14,17 +14,25 @@ classdef (Abstract) Trajectory
     Methods - getter, setter methods
     %}  
     
-    properties (GetAccess = private)
+    properties (Access = protected)
         dimensions
-        trajectory
+        duration
+    end
+    
+    methods
+        function dof = get.dimensions(obj)
+            dof = obj.dimensions;
+        end
+         
+         function duration = get.duration(obj)
+             duration = obj.duration;
+         end
     end
     
     methods (Abstract)
         % obj is like the 'this' keyword in Python or Java 
-        dof = getDimensions(obj)
-        traj = getTrajectory(obj)
-        obj = setDimensions(obj)
-        obj = setTrajectory(obj)
+        % no need to initialize getters here, they're implemented in subclasses
+        traj = generateTrajAndCoeff(obj)
     end
 end
 
