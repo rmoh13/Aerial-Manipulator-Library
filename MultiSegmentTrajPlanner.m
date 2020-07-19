@@ -24,6 +24,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
             the first cell is assumed to be a column vector of all the positions,
             the next columns are column vectors of vel, accel, jerk at each position
             in that order
+            the first row in waypoints is for the 1st dimension
+            the second row in waypoints is for the 2nd dimension,
+            etc.
+            
 
             times is a column vector of time points for the time segments
             %}
@@ -58,12 +62,43 @@ classdef MultiSegmentTrajPlanner < Trajectory
             obj.waypoints = newWaypoints;
         end
         
-        function vals = generateTrajAndCoeff(obj)
+        function derTraj = calcDerTraj(obj, times, timeIndex, nthDer)
+            % calculates derivatives as a row for trajectory
+            % we are assuming a 7th order polynomial for the trajectory (min. snap)
+            traj = [times(timeIndex, 1)^7 times(timeIndex, 1)^6 ...
+              times(timeIndex, 1)^5 times(timeIndex, 1)^4 ...
+              times(timeIndex, 1)^3 times(timeIndex, 1)^2 ...
+              times(timeIndex, 1)^1 times(timeIndex, 1)^0];    
+           normCoeff = [1 1 1 1 1 1 1 1];
+            derCoeff = polyder(normCoeff);
+            der2Coeff = polyder(derCoeff);   
+           der3Coeff = polyder(der2Coeff);   
+           der4Coeff = polyder(der3Coeff);
+           der5Coeff = polyder(der4Coeff);
+           der6Coeff = polyder(der5Coeff);
+           if nthDer == 0
+               derTraj = traj;
+           elseif nthDer == 1
+               derTraj = derCoeff.*traj(nthDer+1:size(traj, 2));
+           elseif nthDer == 2
+               derTraj = der2Coeff.*traj(nthDer+1:size(traj, 2));
+           elseif nthDer == 3
+             derTraj = der3Coeff.*traj(nthDer+1:size(traj, 2));
+          elseif nthDer == 4
+              derTraj = der4Coeff.*traj(nthDer+1:size(traj, 2));
+          elseif nthDer == 5
+              derTraj = der5Coeff.*traj(nthDer+1:size(traj, 2));
+          elseif nthDer == 6
+              derTraj = der6Coeff.*traj(nthDer+1:size(traj, 2));
+          end
+        end
+        
+        function vals = generateTrajAndCoeff(obj, dim)
             % in Ax = b, vals is x which is the constraints column vector
             % make waypoints rows, assume each position is given
-            waypoints = obj.waypoints; %#ok<*PROP>
+            waypoints = obj.waypoints; %#ok<*PROPLC,*PROP>
             times = obj.times;
-            positions = waypoints{1,1};
+            positions = waypoints{dim,1};
             numWP = size(positions, 1);
             % this should be true: numWP == numT
             % A = zeros(8 * (numWP - 1), 8 * (numWP - 1));
@@ -118,19 +153,19 @@ classdef MultiSegmentTrajPlanner < Trajectory
     
             % bVals is the column vec of value constraints we will combine b with
             % can't really precompute here, so start w/ first val, iterate to last
-            bVals = [waypoints{1,2}];
+            bVals = [waypoints{dim,2}];
             AValsFirstRow = [];
             % do the first row of the corresponding value constraints in A
-            for i = 1:size(waypoints{1, 2}, 1)
-                if i == 1 && ~isnan(waypoints{1,2}(i, 1))
-                    AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 1) , ...  
-                    zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 1), 2))]; 
-                elseif i == 2 && ~isnan(waypoints{1,2}(i, 1))
-                    AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 2) , ...
-                    zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 2), 2))]; 
-                elseif i == 3 && ~isnan(waypoints{1,2}(i, 1))
-                    AValsFirstRow = [AValsFirstRow ; calcDerTraj(times, 1, 3) , ... 
-                    zeros(1, size(A, 2) - size(calcDerTraj(times, 1, 3), 2))]; 
+            for i = 1:size(waypoints{dim, 2}, 1)
+                if i == 1 && ~isnan(waypoints{dim,2}(i, 1))
+                    AValsFirstRow = [AValsFirstRow ; obj.calcDerTraj(times, 1, 1) , ...  
+                    zeros(1, size(A, 2) - size(obj.calcDerTraj(times, 1, 1), 2))]; 
+                elseif i == 2 && ~isnan(waypoints{dim,2}(i, 1))
+                    AValsFirstRow = [AValsFirstRow ; obj.calcDerTraj(times, 1, 2) , ...
+                    zeros(1, size(A, 2) - size(obj.calcDerTraj(times, 1, 2), 2))]; 
+                elseif i == 3 && ~isnan(waypoints{dim,2}(i, 1))
+                    AValsFirstRow = [AValsFirstRow ; obj.calcDerTraj(times, 1, 3) , ... 
+                    zeros(1, size(A, 2) - size(obj.calcDerTraj(times, 1, 3), 2))]; 
                 end
             end
             A = [A ; AValsFirstRow];
@@ -139,55 +174,55 @@ classdef MultiSegmentTrajPlanner < Trajectory
             j = 3;
             while j < size(waypoints, 2)
                 currentCol = [];
-                for k = 1:size(waypoints{1,j}, 1)
-                    if ~isnan(waypoints{1,j}(k, 1))
-                        currentCol = [currentCol ; waypoints{1,j}(k, 1)];
+                for k = 1:size(waypoints{dim,j}, 1)
+                    if ~isnan(waypoints{dim,j}(k, 1))
+                        currentCol = [currentCol ; waypoints{dim,j}(k, 1)];
                     end
                 end
                 bVals = [bVals ; currentCol; currentCol]; 
                 j = j + 1;
             end
-            bVals = [bVals ; waypoints{1, size(waypoints, 2)}];
+            bVals = [bVals ; waypoints{dim, size(waypoints, 2)}];
             b = [b ; bVals];
             AInBetween = [];
             for i = 3:size(waypoints, 2) - 1
                 timeIndex = i - 1;
-                for k = 1:size(waypoints{1, i}, 1)
-                     if k == 1 && ~isnan(waypoints{1,i}(k, 1))
-                         der1Traj = calcDerTraj(times, timeIndex, 1);
+                for k = 1:size(waypoints{dim, i}, 1)
+                     if k == 1 && ~isnan(waypoints{dim,i}(k, 1))
+                         der1Traj = obj.calcDerTraj(times, timeIndex, 1);
                          currRow = zeros(1, 8 * (numWP - 1));
                          currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
                          = der1Traj;
                          AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-                     elseif k == 2 && ~isnan(waypoints{1,i}(k, 1))
-                         der2Traj = calcDerTraj(times, timeIndex, 2);
+                     elseif k == 2 && ~isnan(waypoints{dim,i}(k, 1))
+                         der2Traj = obj.calcDerTraj(times, timeIndex, 2);
                          currRow = zeros(1, 8 * (numWP - 1));
                          currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
                          = der2Traj;
                          AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-                     elseif k == 3 && ~isnan(waypoints{1,i}(k, 1))
-                         der3Traj = calcDerTraj(times, timeIndex, 3);
+                     elseif k == 3 && ~isnan(waypoints{dim,i}(k, 1))
+                         der3Traj = obj.calcDerTraj(times, timeIndex, 3);
                          currRow = zeros(1, 8 * (numWP - 1));
                          currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
                          = der3Traj;
                          AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
                      end         
                 end
-                for k = 1:size(waypoints{1, i}, 1)
-                     if k == 1 && ~isnan(waypoints{1,i}(k, 1))
-                         der1Traj = calcDerTraj(times, timeIndex, 1);
+                for k = 1:size(waypoints{dim, i}, 1)
+                     if k == 1 && ~isnan(waypoints{dim,i}(k, 1))
+                         der1Traj = obj.calcDerTraj(times, timeIndex, 1);
                          currRow = zeros(1, 8 * (numWP - 1));
                          currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der1Traj, 2)) ...
                          = der1Traj;
                          AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-                     elseif k == 2 && ~isnan(waypoints{1,i}(k, 1))
-                         der2Traj = calcDerTraj(times, timeIndex, 2);
+                     elseif k == 2 && ~isnan(waypoints{dim,i}(k, 1))
+                         der2Traj = obj.calcDerTraj(times, timeIndex, 2);
                          currRow = zeros(1, 8 * (numWP - 1));
                          currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der2Traj, 2)) ...
                          = der2Traj;
                          AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-                     elseif k == 3 && ~isnan(waypoints{1,i}(k, 1))
-                         der3Traj = calcDerTraj(times, timeIndex, 3);
+                     elseif k == 3 && ~isnan(waypoints{dim,i}(k, 1))
+                         der3Traj = obj.calcDerTraj(times, timeIndex, 3);
                          currRow = zeros(1, 8 * (numWP - 1));
                          currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der3Traj, 2)) ...
                          = der3Traj;
@@ -199,21 +234,21 @@ classdef MultiSegmentTrajPlanner < Trajectory
             % now do the last row
             AValsLastRow = [];
             lastWNaNndex = size(waypoints, 2) - 1;
-            for k = 1:size(waypoints{1, size(waypoints, 2)}, 1)
-                 if k == 1 && ~isnan(waypoints{1,size(waypoints, 2)}(k, 1))
-                     der1Traj = calcDerTraj(times, lastWNaNndex, 1);
+            for k = 1:size(waypoints{dim, size(waypoints, 2)}, 1)
+                 if k == 1 && ~isnan(waypoints{dim,size(waypoints, 2)}(k, 1))
+                     der1Traj = obj.calcDerTraj(times, lastWNaNndex, 1);
                      currRow = zeros(1, 8 * (numWP - 1));
                      currRow(1, 8*(lastWNaNndex-2) + 1 : 8*(lastWNaNndex-2) + size(der1Traj, 2)) ...
                      = der1Traj;
                      AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
-                 elseif k == 2 && ~isnan(waypoints{1,size(waypoints, 2)}(k, 1))
-                     der2Traj = calcDerTraj(times, lastWNaNndex, 2);
+                 elseif k == 2 && ~isnan(waypoints{dim,size(waypoints, 2)}(k, 1))
+                     der2Traj = obj.calcDerTraj(times, lastWNaNndex, 2);
                      currRow = zeros(1, 8 * (numWP - 1));
                      currRow(1, 8*(lastWNaNndex-2) + 1 : 8*(lastWNaNndex-2) + size(der2Traj, 2)) ...
                      = der2Traj;
                      AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
-                 elseif k == 3 && ~isnan(waypoints{1,size(waypoints, 2)}(k, 1))
-                     der3Traj = calcDerTraj(times, lastWNaNndex, 3);
+                 elseif k == 3 && ~isnan(waypoints{dim,size(waypoints, 2)}(k, 1))
+                     der3Traj = obj.calcDerTraj(times, lastWNaNndex, 3);
                      currRow = zeros(1, 8 * (numWP - 1));
                      currRow(1, 8*(lastWNaNndex-2) + 1 : 8*(lastWNaNndex-2) + size(der3Traj, 2)) ...
                      = der3Traj;
@@ -234,18 +269,18 @@ classdef MultiSegmentTrajPlanner < Trajectory
             bUnknowns = [];
             for i = 3:size(waypoints, 2) - 1
                 timeIndex = i - 1;
-                indicesUnknowns = find(isnan(waypoints{1, i}));
+                indicesUnknowns = find(isnan(waypoints{dim, i}));
                 if size(indicesUnknowns, 1) ~= 0
-                    for k = 1:size(waypoints{1, i}, 1)
+                    for k = 1:size(waypoints{dim, i}, 1)
                         %currentIndexUnknown = indicesUnknowns(1, k);
                         %waypoints{1,i}(currentIndexUnknown, 1);
                          %{
                          if velocity is unknown, add two constraints: the velocity
                          equality constraint and the 4th derivative constraint
                          %}
-                         if k == 1 && isnan(waypoints{1,i}(k, 1))
+                         if k == 1 && isnan(waypoints{dim,i}(k, 1))
                              % velocity equality constraint
-                             der1Traj = calcDerTraj(times, timeIndex, 1);
+                             der1Traj = obj.calcDerTraj(times, timeIndex, 1);
                              currRow = zeros(1, 8 * (numWP - 1));
                              currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
                              = der1Traj;
@@ -258,7 +293,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
                              bUnknowns = [bUnknowns ; 0];
 
                              % 4th derivative equality constraint
-                             der4Traj = calcDerTraj(times, timeIndex, 4);
+                             der4Traj = obj.calcDerTraj(times, timeIndex, 4);
                              currRow = zeros(1, 8 * (numWP - 1));
                              currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der4Traj, 2)) ...
                              = der4Traj;
@@ -273,9 +308,9 @@ classdef MultiSegmentTrajPlanner < Trajectory
                          if acceleration is unknown, add two constraints: the acceleration
                          equality constraint and the 5th derivative constraint
                          %}             
-                         elseif k ==2 && isnan(waypoints{1,i}(k, 1))
+                         elseif k ==2 && isnan(waypoints{dim,i}(k, 1))
                              % acceleration equality constraint
-                             der2Traj = calcDerTraj(times, timeIndex, 2);
+                             der2Traj = obj.calcDerTraj(times, timeIndex, 2);
                              currRow = zeros(1, 8 * (numWP - 1));
                              currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
                              = der2Traj;
@@ -288,7 +323,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
                              bUnknowns = [bUnknowns ; 0];
 
                              % 5th derivative equality constraint
-                             der5Traj = calcDerTraj(times, timeIndex, 5);
+                             der5Traj = obj.calcDerTraj(times, timeIndex, 5);
                              currRow = zeros(1, 8 * (numWP - 1));
                              currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der5Traj, 2)) ...
                              = der5Traj;
@@ -303,9 +338,9 @@ classdef MultiSegmentTrajPlanner < Trajectory
                          if jerk is unknown, add two constraints: the jerk
                          equality constraint and the 6th derivative constraint
                          %}                 
-                         elseif k == 3 && isnan(waypoints{1,i}(k, 1))
+                         elseif k == 3 && isnan(waypoints{dim,i}(k, 1))
                              % jerk equality constraint
-                             der3Traj = calcDerTraj(times, timeIndex, 3);
+                             der3Traj = obj.calcDerTraj(times, timeIndex, 3);
                              currRow = zeros(1, 8 * (numWP - 1));
                              currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
                              = der3Traj;
@@ -318,7 +353,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
                              bUnknowns = [bUnknowns ; 0];
 
                              % 6th derivative equality constraint
-                             der6Traj = calcDerTraj(times, timeIndex, 6);
+                             der6Traj = obj.calcDerTraj(times, timeIndex, 6);
                              currRow = zeros(1, 8 * (numWP - 1));
                              currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der6Traj, 2)) ...
                              = der6Traj;
@@ -339,26 +374,26 @@ classdef MultiSegmentTrajPlanner < Trajectory
             vals = {A, b, x};
         end
         
-        function traj = getTrajectory(obj)
-            valsCell = obj.generateTrajAndCoeff();
-            traj = valsCell{1, size(vals, 2)};
+        function traj = getTrajectory(obj, dim)
+            valsCell = obj.generateTrajAndCoeff(dim);
+            traj = valsCell{1, size(valsCell, 2)};
         end
         
-        function mat = getCoefficientMatrix(obj)
-            valsCell = obj.generateTrajAndCoeff();
+        function mat = getCoefficientMatrix(obj, dim)
+            valsCell = obj.generateTrajAndCoeff(dim);
             mat = valsCell{1, 1};
         end
         
-        function out = getOutputVec(obj)
-            valsCell = obj.generateTrajAndCoeff();
-            out = valsCell{1, size(vals, 2) - 1};
+        function out = getOutputVec(obj, dim)
+            valsCell = obj.generateTrajAndCoeff(dim);
+            out = valsCell{1, size(valsCell, 2) - 1};
         end        
         
         % here, for all the plotting functions, x is trajectory polynomial
-        function dummyVar = plotPosition(obj)
-            x = obj.getTrajectory();
+        function dummyVar = plotPosition(obj, dim)
+            x = obj.getTrajectory(dim);
             times = obj.times;
-            positions = obj.waypoints{1,1};
+            positions = obj.waypoints{dim,1};
             numWP = size(positions, 1);
             numTraj = numWP - 1;
             sizeSol = size(x, 1);
@@ -387,10 +422,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
             dummyVar = [];
         end
         
-        function dummyVar = plotVelocity(obj)
-            x = obj.getTrajectory();
+        function dummyVar = plotVelocity(obj, dim)
+            x = obj.getTrajectory(dim);
             times = obj.times;
-            positions = obj.waypoints{1,1};
+            positions = obj.waypoints{dim,1};
             numWP = size(positions, 1);
             numTraj = numWP - 1;
             sizeSol = size(x, 1);
@@ -420,10 +455,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
             dummyVar = [];
         end
         
-        function dummyVar = plotAcceleration(obj)
-            x = obj.getTrajectory();
+        function dummyVar = plotAcceleration(obj, dim)
+            x = obj.getTrajectory(dim);
             times = obj.times;
-            positions = obj.waypoints{1,1};
+            positions = obj.waypoints{dim,1};
             numWP = size(positions, 1);
             numTraj = numWP - 1;
             sizeSol = size(x, 1);
@@ -454,10 +489,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
             dummyVar = [];
         end
         
-        function dummyVar = plotJerk(obj)
-            x = obj.getTrajectory();
+        function dummyVar = plotJerk(obj, dim)
+            x = obj.getTrajectory(dim);
             times = obj.times;
-            positions = obj.waypoints{1,1};
+            positions = obj.waypoints{dim,1};
             numWP = size(positions, 1);
             numTraj = numWP - 1;
             sizeSol = size(x, 1);
@@ -489,10 +524,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
             dummyVar = [];
         end
         
-        function dummyVar = plotAll(obj)
-            x = obj.getTrajectory();
+        function dummyVar = plotAll(obj, dim)
+            x = obj.getTrajectory(dim);
             times = obj.times;
-            positions = obj.waypoints{1,1};
+            positions = obj.waypoints{dim,1};
             numWP = size(positions, 1);
             numTraj = numWP - 1;
             sizeSol = size(x, 1);
@@ -595,37 +630,6 @@ classdef MultiSegmentTrajPlanner < Trajectory
             hold off
             
             dummyVar = [];
-        end
-        
-        function derTraj = calcDerTraj(times, timeIndex, nthDer)
-            % calculates derivatives as a row for trajectory
-            % we are assuming a 7th order polynomial for the trajectory (min. snap)
-            traj = [times(timeIndex, 1)^7 times(timeIndex, 1)^6 ...
-              times(timeIndex, 1)^5 times(timeIndex, 1)^4 ...
-              times(timeIndex, 1)^3 times(timeIndex, 1)^2 ...
-              times(timeIndex, 1)^1 times(timeIndex, 1)^0];    
-           normCoeff = [1 1 1 1 1 1 1 1];
-            derCoeff = polyder(normCoeff);
-            der2Coeff = polyder(derCoeff);   
-           der3Coeff = polyder(der2Coeff);   
-           der4Coeff = polyder(der3Coeff);
-           der5Coeff = polyder(der4Coeff);
-           der6Coeff = polyder(der5Coeff);
-           if nthDer == 0
-               derTraj = traj;
-           elseif nthDer == 1
-               derTraj = derCoeff.*traj(nthDer+1:size(traj, 2));
-           elseif nthDer == 2
-               derTraj = der2Coeff.*traj(nthDer+1:size(traj, 2));
-           elseif nthDer == 3
-             derTraj = der3Coeff.*traj(nthDer+1:size(traj, 2));
-          elseif nthDer == 4
-              derTraj = der4Coeff.*traj(nthDer+1:size(traj, 2));
-          elseif nthDer == 5
-              derTraj = der5Coeff.*traj(nthDer+1:size(traj, 2));
-          elseif nthDer == 6
-              derTraj = der6Coeff.*traj(nthDer+1:size(traj, 2));
-           end
         end
         
     end
