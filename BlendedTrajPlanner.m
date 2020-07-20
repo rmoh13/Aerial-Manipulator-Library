@@ -51,6 +51,17 @@ classdef BlendedTrajPlanner < Trajectory
             currentdT = obj.dTs(1,1);
             endT = currentTrajObj.times(end, 1);
             t = [endT ; endT + currentdT];
+            trajs = [];
+            wp = {};
+            for i = 1:dimensionsCurrentTraj
+                trajs = [trajs ; currentTrajObj.getTrajectory(i)];
+            end
+            for i = 1:dimensionsCurrentTraj
+                for j = 1:size(wp, 2)
+                    
+                end
+            end
+            
             
             % go in between
             for i = 2:size(obj.cellArrayTrajs)-1
@@ -68,6 +79,7 @@ classdef BlendedTrajPlanner < Trajectory
                 
                 t = [endT ; endT + currentdT];
             end
+            
         end
     end
 end
