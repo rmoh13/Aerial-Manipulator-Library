@@ -28,9 +28,19 @@ classdef MultiSegmentTrajPlanner < Trajectory
             the second row in waypoints is for the 2nd dimension,
             etc.
             
-            EXAMPLE WAYPOINTS CELL ARRAY:
+            EXAMPLE 1D 3 WAYPOINTS CELL ARRAY:
+            {[0;5;10],[0;0;0],[10;20;30],[0;0;0]}
+            
+            
+            EXAMPLE 2D 3 WAYPOINTS CELL ARRAY:
             {[0;5;10],[0;0;0],[10;20;30],[0;0;0];
             [0;7;11],[0;0;0],[1;2;3],[0;0;0]}
+            
+            EXAMPLE 3D 3 WAYPOINTS CELL ARRAY:
+            {[0;5;10],[0;0;0],[10;20;30],[0;0;0];
+            [0;7;11],[0;0;0],[1;2;3],[0;0;0];
+            [0;8;100], [0;0;0], [4;5;6], [0;0;0]}
+            
             
 
             times is a column vector of time points for the time segments
@@ -896,7 +906,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     yjerkTraj = polyder(yaccelTraj);
                     zjerkTraj = polyder(zaccelTraj);
                     t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                    plot3(polyval(xjerkTraj,t), polyval(yjerkTraj,t), polyval(zjerkTraj,t)
+                    plot3(polyval(xjerkTraj,t), polyval(yjerkTraj,t), polyval(zjerkTraj,t))
                     title("jerk vs time")
                     xlabel("x'''(t)")
                     ylabel("y'''(t)")
@@ -1282,7 +1292,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     yjerkTraj = polyder(yaccelTraj);
                     zjerkTraj = polyder(zaccelTraj);
                     t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                    plot3(polyval(xjerkTraj,t), polyval(yjerkTraj,t), polyval(zjerkTraj,t)
+                    plot3(polyval(xjerkTraj,t), polyval(yjerkTraj,t), polyval(zjerkTraj,t))
                     title("jerk vs time")
                     xlabel("x'''(t)")
                     ylabel("y'''(t)")
