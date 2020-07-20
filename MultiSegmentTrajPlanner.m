@@ -28,6 +28,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
             the second row in waypoints is for the 2nd dimension,
             etc.
             
+            EXAMPLE WAYPOINTS CELL ARRAY:
+            {[0;5;10],[0;0;0],[10;20;30],[0;0;0];
+            [0;7;11],[0;0;0],[1;2;3],[0;0;0]}
+            
 
             times is a column vector of time points for the time segments
             %}
@@ -464,6 +468,54 @@ classdef MultiSegmentTrajPlanner < Trajectory
                 hold off
                 dummyVar = [];
             elseif dim == 3
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                z = obj.getTrajectory(3);
+                times = obj.times;
+                xpositions = obj.waypoints{1,1};
+                ypositions = obj.waypoints{2,1};
+                zpositions = obj.waypoints{3,1};
+                numWPx = size(xpositions, 1);
+                % these three should be equal
+                numWPy = size(ypositions, 1);
+                numWPz = size(zpositions, 1);
+                numXTraj = numWPx - 1;
+                % these three should be equal
+                numYTraj = numWPy - 1; %#ok<*NASGU>
+                numZTraj = numWPz - 1; %#ok<*NASGU>
+                sizeXSol = size(x, 1);
+                % these three should be equal
+                sizeYSol = size(y, 1);
+                sizeZSol = size(z, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                view(3);
+                while i < sizeXSol
+                    xposTraj = x(i:i+7).';
+                    yposTraj = y(i:i+7).';
+                    zposTraj = z(i:i+7).';
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    xtraj = xposTraj;
+                    ytraj = yposTraj;
+                    ztraj = zposTraj;
+                    plot3(polyval(xtraj,t), polyval(ytraj,t), polyval(ztraj,t))
+                    title("position vs time")
+                    xlabel("x(t)")
+                    ylabel("y(t)")
+                    zlabel("z(t)")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numXTraj);
+                for i = 1:numXTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
             end
         end
         
@@ -542,6 +594,54 @@ classdef MultiSegmentTrajPlanner < Trajectory
                 hold off
                 dummyVar = [];
             elseif dim == 3
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                z = obj.getTrajectory(3);
+                times = obj.times;
+                xpositions = obj.waypoints{1,1};
+                ypositions = obj.waypoints{2,1};
+                zpositions = obj.waypoints{3,1};
+                numWPx = size(xpositions, 1);
+                % these three should be equal
+                numWPy = size(ypositions, 1);
+                numWPz = size(zpositions, 1);
+                numXTraj = numWPx - 1;
+                % these three should be equal
+                numYTraj = numWPy - 1; %#ok<*NASGU>
+                numZTraj = numWPz - 1; %#ok<*NASGU>
+                sizeXSol = size(x, 1);
+                % these three should be equal
+                sizeYSol = size(y, 1);
+                sizeZSol = size(z, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                view(3);
+                while i < sizeXSol
+                    xposTraj = x(i:i+7).';
+                    xvelTraj = polyder(xposTraj);
+                    yposTraj = y(i:i+7).';
+                    yvelTraj = polyder(yposTraj);
+                    zposTraj = z(i:i+7).';
+                    zvelTraj = polyder(zposTraj);
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    plot3(polyval(xvelTraj,t), polyval(yvelTraj,t), polyval(zvelTraj,t))
+                    title("velocity vs time")
+                    xlabel("x'(t)")
+                    ylabel("y'(t)")
+                    zlabel("z'(t)")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numXTraj);
+                for i = 1:numXTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
             end
         end
         
@@ -623,6 +723,57 @@ classdef MultiSegmentTrajPlanner < Trajectory
                 hold off
                 dummyVar = [];
             elseif dim == 3
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                z = obj.getTrajectory(3);
+                times = obj.times;
+                xpositions = obj.waypoints{1,1};
+                ypositions = obj.waypoints{2,1};
+                zpositions = obj.waypoints{3,1};
+                numWPx = size(xpositions, 1);
+                % these three should be equal
+                numWPy = size(ypositions, 1);
+                numWPz = size(zpositions, 1);
+                numXTraj = numWPx - 1;
+                % these three should be equal
+                numYTraj = numWPy - 1; %#ok<*NASGU>
+                numZTraj = numWPz - 1; %#ok<*NASGU>
+                sizeXSol = size(x, 1);
+                % these three should be equal
+                sizeYSol = size(y, 1);
+                sizeZSol = size(z, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                view(3);
+                while i < sizeXSol
+                    xposTraj = x(i:i+7).';
+                    xvelTraj = polyder(xposTraj);
+                    yposTraj = y(i:i+7).';
+                    yvelTraj = polyder(yposTraj);
+                    zposTraj = z(i:i+7).';
+                    zvelTraj = polyder(zposTraj);
+                    xaccelTraj = polyder(xvelTraj);
+                    yaccelTraj = polyder(yvelTraj);
+                    zaccelTraj = polyder(zvelTraj);
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    plot3(polyval(xaccelTraj,t), polyval(yaccelTraj,t), polyval(zaccelTraj,t))
+                    title("acceleration vs time")
+                    xlabel("x''(t)")
+                    ylabel("y''(t)")
+                    zlabel("z''(t)")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numXTraj);
+                for i = 1:numXTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
             end
         end
         
@@ -707,6 +858,60 @@ classdef MultiSegmentTrajPlanner < Trajectory
                 hold off
                 dummyVar = [];
             elseif dim == 3
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                z = obj.getTrajectory(3);
+                times = obj.times;
+                xpositions = obj.waypoints{1,1};
+                ypositions = obj.waypoints{2,1};
+                zpositions = obj.waypoints{3,1};
+                numWPx = size(xpositions, 1);
+                % these three should be equal
+                numWPy = size(ypositions, 1);
+                numWPz = size(zpositions, 1);
+                numXTraj = numWPx - 1;
+                % these three should be equal
+                numYTraj = numWPy - 1; %#ok<*NASGU>
+                numZTraj = numWPz - 1; %#ok<*NASGU>
+                sizeXSol = size(x, 1);
+                % these three should be equal
+                sizeYSol = size(y, 1);
+                sizeZSol = size(z, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                view(3);
+                while i < sizeXSol
+                    xposTraj = x(i:i+7).';
+                    xvelTraj = polyder(xposTraj);
+                    yposTraj = y(i:i+7).';
+                    yvelTraj = polyder(yposTraj);
+                    zposTraj = z(i:i+7).';
+                    zvelTraj = polyder(zposTraj);
+                    xaccelTraj = polyder(xvelTraj);
+                    yaccelTraj = polyder(yvelTraj);
+                    zaccelTraj = polyder(zvelTraj);
+                    xjerkTraj = polyder(xaccelTraj);
+                    yjerkTraj = polyder(yaccelTraj);
+                    zjerkTraj = polyder(zaccelTraj);
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    plot3(polyval(xjerkTraj,t), polyval(yjerkTraj,t), polyval(zjerkTraj,t)
+                    title("jerk vs time")
+                    xlabel("x'''(t)")
+                    ylabel("y'''(t)")
+                    zlabel("z'''(t)")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numXTraj);
+                for i = 1:numXTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
             end
         end
         
