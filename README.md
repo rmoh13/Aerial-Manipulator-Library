@@ -1,2 +1,2 @@
 # Aerial-Manipulator-Library
-Trajectory Planning for Aerial Manipulators
+This is a software library geared towards the use and application of aerial manipulators in various tasks. 
