@@ -391,139 +391,285 @@ classdef MultiSegmentTrajPlanner < Trajectory
         
         % here, for all the plotting functions, x is trajectory polynomial
         function dummyVar = plotPosition(obj, dim)
-            x = obj.getTrajectory(dim);
-            times = obj.times;
-            positions = obj.waypoints{dim,1};
-            numWP = size(positions, 1);
-            numTraj = numWP - 1;
-            sizeSol = size(x, 1);
-            i = 1;
-            timeIndex = 1;
-            subplot(1,1,1);
-            hold on
-            while i < sizeSol
-                posTraj = x(i:i+7).';
-                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                y = posTraj;
-                plot(t, polyval(y,t))
-                title("position vs time")
-                xlabel("t")
-                ylabel("x(t)")
-                i = i + 8;
-                timeIndex = timeIndex + 1;
+            if dim == 1
+                x = obj.getTrajectory(dim);
+                times = obj.times;
+                positions = obj.waypoints{dim,1};
+                numWP = size(positions, 1);
+                numTraj = numWP - 1;
+                sizeSol = size(x, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                while i < sizeSol
+                    posTraj = x(i:i+7).';
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    y = posTraj;
+                    plot(t, polyval(y,t))
+                    title("position vs time")
+                    xlabel("t")
+                    ylabel("x(t)")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numTraj);
+                for i = 1:numTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
+            elseif dim == 2
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                times = obj.times;
+                xpositions = obj.waypoints{1,1};
+                ypositions = obj.waypoints{2,1};
+                numWPx = size(xpositions, 1);
+                % these two should be equal
+                numWPy = size(ypositions, 1);
+                numXTraj = numWPx - 1;
+                % these two should be equal
+                numYTraj = numWPy - 1; %#ok<*NASGU>
+                sizeXSol = size(x, 1);
+                % these two should be equal
+                sizeYSol = size(y, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                view(3);
+                while i < sizeXSol
+                    xposTraj = x(i:i+7).';
+                    yposTraj = y(i:i+7).';
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    xtraj = xposTraj;
+                    ytraj = yposTraj;
+                    plot3(polyval(xtraj,t), polyval(ytraj,t), t)
+                    title("position vs time")
+                    xlabel("x(t)")
+                    ylabel("y(t)")
+                    zlabel("z = t")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numXTraj);
+                for i = 1:numXTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
+            elseif dim == 3
             end
-            collectNames = cell(1, numTraj);
-            for i = 1:numTraj
-                text = strcat("trajectory ", num2str(i));
-                collectNames{1,i} = text;
-            end
-            legend(collectNames);
-            hold off
-            dummyVar = [];
         end
         
         function dummyVar = plotVelocity(obj, dim)
-            x = obj.getTrajectory(dim);
-            times = obj.times;
-            positions = obj.waypoints{dim,1};
-            numWP = size(positions, 1);
-            numTraj = numWP - 1;
-            sizeSol = size(x, 1);
-            i = 1;
-            timeIndex = 1;
-            subplot(1,1,1);
-            hold on
-            while i < sizeSol
-                posTraj = x(i:i+7).';
-                velTraj = polyder(posTraj);
-                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                y = velTraj;
-                plot(t, polyval(y,t))
-                title("velocity vs time")
-                xlabel("t")
-                ylabel("x'(t)")
-                i = i + 8;
-                timeIndex = timeIndex + 1;
+            if dim == 1
+                x = obj.getTrajectory(dim);
+                times = obj.times;
+                positions = obj.waypoints{dim,1};
+                numWP = size(positions, 1);
+                numTraj = numWP - 1;
+                sizeSol = size(x, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                while i < sizeSol
+                    posTraj = x(i:i+7).';
+                    velTraj = polyder(posTraj);
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    y = velTraj;
+                    plot(t, polyval(y,t))
+                    title("velocity vs time")
+                    xlabel("t")
+                    ylabel("x'(t)")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numTraj);
+                for i = 1:numTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
+            elseif dim == 2
+            elseif dim == 3
             end
-            collectNames = cell(1, numTraj);
-            for i = 1:numTraj
-                text = strcat("trajectory ", num2str(i));
-                collectNames{1,i} = text;
-            end
-            legend(collectNames);
-            hold off
-            dummyVar = [];
         end
         
         function dummyVar = plotAcceleration(obj, dim)
-            x = obj.getTrajectory(dim);
-            times = obj.times;
-            positions = obj.waypoints{dim,1};
-            numWP = size(positions, 1);
-            numTraj = numWP - 1;
-            sizeSol = size(x, 1);
-            i = 1;
-            timeIndex = 1;
-            subplot(1,1,1);
-            hold on
-            while i < sizeSol
-                posTraj = x(i:i+7).';
-                velTraj = polyder(posTraj);
-                accelTraj = polyder(velTraj);
-                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                y = accelTraj;
-                plot(t, polyval(y,t))
-                title("acceleration vs time")
-                xlabel("t")
-                ylabel("x''(t)")
-                i = i + 8;
-                timeIndex = timeIndex + 1;
+            if dim == 1
+                x = obj.getTrajectory(dim);
+                times = obj.times;
+                positions = obj.waypoints{dim,1};
+                numWP = size(positions, 1);
+                numTraj = numWP - 1;
+                sizeSol = size(x, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                while i < sizeSol
+                    posTraj = x(i:i+7).';
+                    velTraj = polyder(posTraj);
+                    accelTraj = polyder(velTraj);
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    y = accelTraj;
+                    plot(t, polyval(y,t))
+                    title("acceleration vs time")
+                    xlabel("t")
+                    ylabel("x''(t)")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numTraj);
+                for i = 1:numTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
+            elseif dim == 2
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                times = obj.times;
+                xpositions = obj.waypoints{1,1};
+                ypositions = obj.waypoints{2,1};
+                numWPx = size(xpositions, 1);
+                % these two should be equal
+                numWPy = size(ypositions, 1);
+                numXTraj = numWPx - 1;
+                % these two should be equal
+                numYTraj = numWPy - 1; %#ok<*NASGU>
+                sizeXSol = size(x, 1);
+                % these two should be equal
+                sizeYSol = size(y, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                view(3);
+                while i < sizeXSol
+                    xposTraj = x(i:i+7).';
+                    xvelTraj = polyder(xposTraj);
+                    yposTraj = y(i:i+7).';
+                    yvelTraj = polyder(yposTraj);
+                    xaccelTraj = polyder(xvelTraj);
+                    yaccelTraj = polyder(yvelTraj);
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    plot3(polyval(xaccelTraj,t), polyval(yaccelTraj,t), t)
+                    title("acceleration vs time")
+                    xlabel("x''(t)")
+                    ylabel("y''(t)")
+                    zlabel("z = t")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numXTraj);
+                for i = 1:numXTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
+            elseif dim == 3
             end
-            collectNames = cell(1, numTraj);
-            for i = 1:numTraj
-                text = strcat("trajectory ", num2str(i));
-                collectNames{1,i} = text;
-            end
-            legend(collectNames);
-            hold off
-            dummyVar = [];
         end
         
         function dummyVar = plotJerk(obj, dim)
-            x = obj.getTrajectory(dim);
-            times = obj.times;
-            positions = obj.waypoints{dim,1};
-            numWP = size(positions, 1);
-            numTraj = numWP - 1;
-            sizeSol = size(x, 1);
-            i = 1;
-            timeIndex = 1;
-            subplot(1,1,1);
-            hold on
-            while i < sizeSol
-                posTraj = x(i:i+7).';
-                velTraj = polyder(posTraj);
-                accelTraj = polyder(velTraj);
-                jerkTraj = polyder(accelTraj);
-                t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                y = jerkTraj;
-                plot(t, polyval(y,t))
-                title("jerk vs time")
-                xlabel("t")
-                ylabel("x'''(t)")
-                i = i + 8;
-                timeIndex = timeIndex + 1;
+            if dim == 1
+                x = obj.getTrajectory(dim);
+                times = obj.times;
+                positions = obj.waypoints{dim,1};
+                numWP = size(positions, 1);
+                numTraj = numWP - 1;
+                sizeSol = size(x, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                while i < sizeSol
+                    posTraj = x(i:i+7).';
+                    velTraj = polyder(posTraj);
+                    accelTraj = polyder(velTraj);
+                    jerkTraj = polyder(accelTraj);
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    y = jerkTraj;
+                    plot(t, polyval(y,t))
+                    title("jerk vs time")
+                    xlabel("t")
+                    ylabel("x'''(t)")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numTraj);
+                for i = 1:numTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
+            elseif dim == 2
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                times = obj.times;
+                xpositions = obj.waypoints{1,1};
+                ypositions = obj.waypoints{2,1};
+                numWPx = size(xpositions, 1);
+                % these two should be equal
+                numWPy = size(ypositions, 1);
+                numXTraj = numWPx - 1;
+                % these two should be equal
+                numYTraj = numWPy - 1; %#ok<*NASGU>
+                sizeXSol = size(x, 1);
+                % these two should be equal
+                sizeYSol = size(y, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                view(3);
+                while i < sizeXSol
+                    xposTraj = x(i:i+7).';
+                    xvelTraj = polyder(xposTraj);
+                    yposTraj = y(i:i+7).';
+                    yvelTraj = polyder(yposTraj);
+                    xaccelTraj = polyder(xvelTraj);
+                    yaccelTraj = polyder(yvelTraj);
+                    xjerkTraj = polyder(xaccelTraj);
+                    yjerkTraj = polyder(yaccelTraj);
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    plot3(polyval(xjerkTraj,t), polyval(yjerkTraj,t), t)
+                    title("jerk vs time")
+                    xlabel("x'''(t)")
+                    ylabel("y'''(t)")
+                    zlabel("z = t")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numXTraj);
+                for i = 1:numXTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
+            elseif dim == 3
             end
-            collectNames = cell(1, numTraj);
-            for i = 1:numTraj
-                text = strcat("trajectory ", num2str(i));
-                collectNames{1,i} = text;
-            end
-            legend(collectNames);
-            hold off
-            dummyVar = [];
         end
         
+        % this is basically for 1D only. dim isn't even necessary here
         function dummyVar = plotAll(obj, dim)
             x = obj.getTrajectory(dim);
             times = obj.times;
