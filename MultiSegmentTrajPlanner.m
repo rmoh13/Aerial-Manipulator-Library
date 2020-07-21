@@ -398,6 +398,8 @@ classdef MultiSegmentTrajPlanner < Trajectory
             mat = valsCell{1, 1};
         end
         
+        % silly change 
+        
         function out = getOutputVec(obj, dim)
             valsCell = obj.generateTrajAndCoeff(dim);
             out = valsCell{1, size(valsCell, 2) - 1};
