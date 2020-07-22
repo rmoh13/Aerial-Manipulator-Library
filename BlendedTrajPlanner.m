@@ -52,50 +52,42 @@ classdef BlendedTrajPlanner < Trajectory
             dimensions)
             %}
             
-            for i = 2:size(obj.cellArrayTrajs, 2)-1
-                collectTrajs = [];
-                beforeTrajObj = obj.cellArrayTrajs{i-1,1};
-                dimensionsCurrentTraj = currentTrajObj.dimensions;
-                currentdT = obj.dTs(1,1);
-                endT = currentTrajObj.times(end, 1);
+            collectTrajs = [];
+            wp = {};
+            for i = 2:size(obj.cellArrayTrajs, 2)
+                beforeTrajObj = obj.cellArrayTrajs{1, i-1};
+                dimensionsBeforeTraj = beforeTrajObj.dimensions;
+                currentdT = obj.dTs(i-1,1);
+                endT = beforeTrajObj.times(end, 1);
                 t = [endT ; endT + currentdT];
-                trajs = [];
-                wp = {};
-                for i = 1:dimensionsCurrentTraj
-                    trajectoryRow = currentTrajObj.getTrajectory(i);
-                    trajectoryRow = trajectoryRow(end - 7:end, 1).';
-                    trajs = [trajs ; trajectoryRow] %#ok<*AGROW>
+                % we assume that all trajectories start from t = 0
+                afterTrajObj = obj.cellArrayTrajs{1, i};
+                % must be true: dimensionsAfterTraj == dimensionsBeforeTraj
+                dimensionsAfterTraj = afterTrajObj.dimensions; %#ok<*NASGU>
+                for j = 1:dimensionsBeforeTraj
+                    j1 = beforeTrajObj.getPosition(t(1,1));
+                    j2 = afterTrajObj.getPosition(afterTrajObj.times(1, 1));
+                    wp{j, 1} = [j1(j,1); 
+                                j2(j,1)]; %#ok<*AGROW>
+                    j1 = beforeTrajObj.getVelocity(t(1,1));
+                    j2 = beforeTrajObj.getAcceleration(t(1,1));
+                    j3 = beforeTrajObj.getJerk(t(1,1));
+                    wp{j, 2} = [j1(j,1); 
+                                j2(j,1);
+                                j3(j,1)];
+                    j1 = afterTrajObj.getVelocity(afterTrajObj.times(1, 1));
+                    j2 = afterTrajObj.getAcceleration(afterTrajObj.times(1, 1));
+                    j3 = afterTrajObj.getJerk(afterTrajObj.times(1, 1));
+                    wp{j, 3} = [j1(j,1); 
+                                j2(j,1);
+                                j3(j,1)];
                 end
-                afterTrajs = [];
-                afterTrajObj = obj.cellArrayTrajs{1,2};
-                for i = 1:dimensionsCurrentTraj
-                    afterTrajs = [afterTrajs ; afterTrajObj.getTrajectory(i)]; %#ok<*AGROW>
-                end
-                for i = 1:dimensionsCurrentTraj
-                    currentTraj = trajs(i, 1:end);
-                    collectTrajs = [collectTrajs ; currentTraj];
-                    if size(obj.cellArrayTrajs) > 1
-                        currentNextTraj = nextTrajs(i, 1:end);
-                    end
-
-                    wp{i, 1} = [polyval(currentTraj, t(1,1)) ; polyval(currentNextTraj, t(2,1))];
-
-                    wp{i, 2} = ...
-                        [polyval(polyder(currentTraj), t(1,1)) ; 
-                        polyval(polyder(polyder(currentTraj)), t(1,1)) ;
-                        polyval(polyder(polyder(polyder(currentTraj))), t(1,1))];                
-
-                    size(obj.cellArrayTrajs) > 1
-                    wp{i, 3} = ...
-                        [polyval(polyder(currentNextTraj), t(2,1)) ; 
-                        polyval(polyder(polyder(currentNextTraj)), t(2,1)) ;
-                        polyval(polyder(polyder(polyder(currentNextTraj))), t(2,1))];
-                end
+                % afterTrajObj is the one we're currenty on technically
                 celldisp(wp)
                 t
-                genBlenTraj = MultiSegmentTrajPlanner(wp, t, dimensionsCurrentTraj);
+                genBlenTraj = MultiSegmentTrajPlanner(wp, t, dimensionsBeforeTraj);
                 genBlenTrajs = [];
-                for i = 1:dimensionsCurrentTraj
+                for i = 1:dimensionsBeforeTraj
                     genBlenTrajs = [genBlenTrajs ; genBlenTraj.getTrajectory(i)];
                     collectTrajs = [collectTrajs ; genBlenTrajs];
                 end
