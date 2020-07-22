@@ -404,6 +404,58 @@ classdef MultiSegmentTrajPlanner < Trajectory
             out = valsCell{1, size(valsCell, 2) - 1};
         end
         
+        function traj = getSpecificPositionTrajectory(obj, time)
+            if obj.dimensions == 1
+                x = obj.getTrajectory(1);
+                sizeSol = size(x, 1);
+                timeIndex = 1;
+                i = 1;
+                while i < sizeSol
+                    posTraj = x(i:i+7).';
+                    timeInterval = linspace(obj.times(timeIndex,1),obj.times(timeIndex + 1, 1));
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                    if time >= timeInterval(1,1) && time <= timeInterval(1, end)
+                        traj = posTraj;
+                    end
+                end
+            elseif obj.dimensions == 2
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                sizeSol = size(x, 1);
+                timeIndex = 1;
+                i = 1;
+                while i < sizeSol
+                    xposTraj = x(i:i+7).';
+                    yposTraj = y(i:i+7).';
+                    timeInterval = linspace(obj.times(timeIndex,1),obj.times(timeIndex + 1, 1));
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                    if time >= timeInterval(1,1) && time <= timeInterval(1, end)
+                        traj = [xposTraj ; yposTraj];
+                    end
+                end
+            elseif obj.dimensions == 3
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                z = obj.getTrajectory(3);
+                sizeSol = size(x, 1);
+                timeIndex = 1;
+                i = 1;
+                while i < sizeSol
+                    xposTraj = x(i:i+7).';
+                    yposTraj = y(i:i+7).';
+                    zposTraj = z(i:i+7).';
+                    timeInterval = linspace(obj.times(timeIndex,1),obj.times(timeIndex + 1, 1));
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                    if time >= timeInterval(1,1) && time <= timeInterval(1, end)
+                        traj = [xposTraj ; yPosTraj ; zposTraj];
+                    end
+                end
+            end
+        end
+        
         function vec = getPosition(obj, time)
             if obj.dimensions == 1
                 x = obj.getTrajectory(1);
