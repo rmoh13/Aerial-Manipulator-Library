@@ -9,7 +9,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
         7th order polynomials
     %}
     
-    properties (Access = private)
+    properties
         waypoints
         times
     end
@@ -56,6 +56,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
             %}
             obj.waypoints = waypoints;
             obj.times = times;
+            % assume duration is from start t to end t that user specifies
             obj.duration = times(size(times, 1), 1) - times(1, 1);
             obj.dimensions = dimensions;
         end
@@ -71,7 +72,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
         function obj = set.times(obj, newTimes)
             obj.times = newTimes;
         end
-        
+              
         function obj = set.waypoints(obj, newWaypoints)
             obj.waypoints = newWaypoints;
         end
@@ -398,12 +399,126 @@ classdef MultiSegmentTrajPlanner < Trajectory
             mat = valsCell{1, 1};
         end
         
-        % silly change 
-        
         function out = getOutputVec(obj, dim)
             valsCell = obj.generateTrajAndCoeff(dim);
             out = valsCell{1, size(valsCell, 2) - 1};
-        end        
+        end
+        
+        function vec = getPosition(obj, time)
+            if obj.dimensions == 1
+                x = obj.getTrajectory(1);
+                sizeSol = size(x, 1);
+                timeIndex = 1;
+                i = 1;
+                while i < sizeSol
+                    posTraj = x(i:i+7).';
+                    timeInterval = linspace(obj.times(timeIndex,1),obj.times(timeIndex + 1, 1));
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                    if time >= timeInterval(1,1) && time <= timeInterval(1, end)
+                        vec = polyval(posTraj, time);
+                    end
+                end
+            elseif obj.dimensions == 2
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                sizeSol = size(x, 1);
+                timeIndex = 1;
+                i = 1;
+                while i < sizeSol
+                    xposTraj = x(i:i+7).';
+                    yposTraj = y(i:i+7).';
+                    timeInterval = linspace(obj.times(timeIndex,1),obj.times(timeIndex + 1, 1));
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                    if time >= timeInterval(1,1) && time <= timeInterval(1, end)
+                        vec = [polyval(xposTraj, time) ; polyval(yposTraj, time)];
+                    end
+                end
+            elseif obj.dimensions == 3
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                z = obj.getTrajectory(3);
+                sizeSol = size(x, 1);
+                timeIndex = 1;
+                i = 1;
+                while i < sizeSol
+                    xposTraj = x(i:i+7).';
+                    yposTraj = y(i:i+7).';
+                    zposTraj = y(i:i+7).';
+                    timeInterval = linspace(obj.times(timeIndex,1),obj.times(timeIndex + 1, 1));
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                    if time >= timeInterval(1,1) && time <= timeInterval(1, end)
+                        vec = [polyval(xposTraj, time) ; polyval(yposTraj, time) ; polyval(zposTraj, time)];
+                    end
+                end
+            end
+        end
+        
+        function vec = getVelocity(obj, time)
+            if obj.dimensions == 1
+                x = obj.getTrajectory(1);
+                sizeSol = size(x, 1);
+                timeIndex = 1;
+                i = 1;
+                while i < sizeSol
+                    posTraj = x(i:i+7).';
+                    velTraj = polyder(posTraj);
+                    timeInterval = linspace(obj.times(timeIndex,1),obj.times(timeIndex + 1, 1));
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                    if time >= timeInterval(1,1) && time <= timeInterval(1, end)
+                        vec = polyval(velTraj, time);
+                    end
+                end
+            elseif obj.dimensions == 2
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                sizeSol = size(x, 1);
+                timeIndex = 1;
+                i = 1;
+                while i < sizeSol
+                    xposTraj = x(i:i+7).';
+                    yposTraj = y(i:i+7).';
+                    xvelTraj = polyder(xposTraj);
+                    yvelTraj = polyder(yposTraj);
+                    timeInterval = linspace(obj.times(timeIndex,1),obj.times(timeIndex + 1, 1));
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                    if time >= timeInterval(1,1) && time <= timeInterval(1, end)
+                        vec = [polyval(xvelTraj, time) ; polyval(yvelTraj, time)];
+                    end
+                end
+            elseif obj.dimensions == 3
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                z = obj.getTrajectory(3);
+                sizeSol = size(x, 1);
+                timeIndex = 1;
+                i = 1;
+                while i < sizeSol
+                    xposTraj = x(i:i+7).';
+                    yposTraj = y(i:i+7).';
+                    zposTraj = y(i:i+7).';
+                    xvelTraj = polyder(xposTraj);
+                    yvelTraj = polyder(yposTraj);
+                    zvelTraj = polyder(zposTraj);
+                    timeInterval = linspace(obj.times(timeIndex,1),obj.times(timeIndex + 1, 1));
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                    if time >= timeInterval(1,1) && time <= timeInterval(1, end)
+                        vec = [polyval(xvelTraj, time) ; polyval(yvelTraj, time) ; polyval(zvelTraj, time)];
+                    end
+                end
+            end
+        end
+        
+        function vec = getAcceleration(obj, time)
+        end
+        
+        function vec = getJerk(obj, time)
+        end
         
         % here, for all the plotting functions, x is trajectory polynomial
         function dummyVar = plotPosition(obj, dim)
