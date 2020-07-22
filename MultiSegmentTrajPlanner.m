@@ -445,7 +445,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
                 while i < sizeSol
                     xposTraj = x(i:i+7).';
                     yposTraj = y(i:i+7).';
-                    zposTraj = y(i:i+7).';
+                    zposTraj = z(i:i+7).';
                     timeInterval = linspace(obj.times(timeIndex,1),obj.times(timeIndex + 1, 1));
                     i = i + 8;
                     timeIndex = timeIndex + 1;
@@ -500,7 +500,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
                 while i < sizeSol
                     xposTraj = x(i:i+7).';
                     yposTraj = y(i:i+7).';
-                    zposTraj = y(i:i+7).';
+                    zposTraj = z(i:i+7).';
                     xvelTraj = polyder(xposTraj);
                     yvelTraj = polyder(yposTraj);
                     zvelTraj = polyder(zposTraj);
@@ -561,7 +561,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
                 while i < sizeSol
                     xposTraj = x(i:i+7).';
                     yposTraj = y(i:i+7).';
-                    zposTraj = y(i:i+7).';
+                    zposTraj = z(i:i+7).';
                     xvelTraj = polyder(xposTraj);
                     yvelTraj = polyder(yposTraj);
                     zvelTraj = polyder(zposTraj);
@@ -628,7 +628,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
                 while i < sizeSol
                     xposTraj = x(i:i+7).';
                     yposTraj = y(i:i+7).';
-                    zposTraj = y(i:i+7).';
+                    zposTraj = z(i:i+7).';
                     xvelTraj = polyder(xposTraj);
                     yvelTraj = polyder(yposTraj);
                     zvelTraj = polyder(zposTraj);
