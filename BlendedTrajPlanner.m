@@ -27,6 +27,8 @@ classdef BlendedTrajPlanner < Trajectory
             %}
             obj.cellArrayTrajs = trajs;
             obj.dTs = dTs;
+            obj.duration = obj.cellArrayTrajs{1, 1}.times(1,1) - ...
+                           obj.cellArrayTrajs{1, size(obj.cellArrayTrajs, 2)}.times(end,1);
         end
         
         function cellArrayTrajs = get.cellArrayTrajs(obj)
@@ -87,7 +89,7 @@ classdef BlendedTrajPlanner < Trajectory
                 for k = 1:dimensionsBeforeTraj
                     collectTrajs = [collectTrajs ; genBlenTraj.getTrajectory(k).'];
                 end
-            
+
             end
             
         end
