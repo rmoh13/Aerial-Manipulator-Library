@@ -39,7 +39,7 @@ classdef BlendedTrajPlanner < Trajectory
             dTs = obj.dTs;
         end
         
-        function collectTrajs = generateTrajAndCoeff(obj, dim)
+        function collectTrajsAndTimes = generateTrajAndCoeff(obj, dim)
             % dim here is the total # of dimensions of the system
             %{
             loop through obj.cellArrayTrajs, evaluate the current traj for 
@@ -54,7 +54,8 @@ classdef BlendedTrajPlanner < Trajectory
             dimensions)
             %}
             
-            collectTrajs = [];
+            collectTrajsAndTimes = {};
+            trajs = [];
             wp = {};
             for i = 2:size(obj.cellArrayTrajs, 2)
                 beforeTrajObj = obj.cellArrayTrajs{1, i-1};
@@ -87,7 +88,9 @@ classdef BlendedTrajPlanner < Trajectory
                 % afterTrajObj is the one we're currenty on technically
                 genBlenTraj = MultiSegmentTrajPlanner(wp, t, dimensionsBeforeTraj);
                 for k = 1:dimensionsBeforeTraj
-                    collectTrajs = [collectTrajs ; genBlenTraj.getTrajectory(k).'];
+                    trajs = [beforeTrajObj.getSpecificPositionTrajectory(t(1,1)); 
+                                   genBlenTraj.getTrajectory(k).';
+                                   afterTrajObj.getSpecificPositionTrajectory(afterTrajObj.times(1, 1))];
                 end
 
             end
