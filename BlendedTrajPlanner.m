@@ -39,7 +39,7 @@ classdef BlendedTrajPlanner < Trajectory
             dTs = obj.dTs;
         end
         
-        function collectTrajsAndTimes = generateTrajAndCoeff(obj, dim)
+        function collectTrajs = generateTrajAndCoeff(obj, dim)
             % dim here is the total # of dimensions of the system
             %{
             loop through obj.cellArrayTrajs, evaluate the current traj for 
@@ -54,8 +54,9 @@ classdef BlendedTrajPlanner < Trajectory
             dimensions)
             %}
             
-            collectTrajsAndTimes = {};
-            trajs = [];
+%             collectTrajsAndTimes = {};
+%             trajs = [];
+            collectTrajs = {};
             wp = {};
             for i = 2:size(obj.cellArrayTrajs, 2)
                 beforeTrajObj = obj.cellArrayTrajs{1, i-1};
@@ -86,15 +87,23 @@ classdef BlendedTrajPlanner < Trajectory
                                 j3(j,1)];
                 end
                 % afterTrajObj is the one we're currenty on technically
-                genBlenTraj = MultiSegmentTrajPlanner(wp, t, dimensionsBeforeTraj);
-                for k = 1:dimensionsBeforeTraj
-                    trajs = [beforeTrajObj.getSpecificPositionTrajectory(t(1,1)); 
-                                   genBlenTraj.getTrajectory(k).';
-                                   afterTrajObj.getSpecificPositionTrajectory(afterTrajObj.times(1, 1))];
-                end
+                 genBlenTraj = MultiSegmentTrajPlanner(wp, t, dimensionsBeforeTraj);
+                 collectTrajs{end + 1} = genBlenTraj;
+%                 for k = 1:dimensionsBeforeTraj
+%                     trajs = [beforeTrajObj.getSpecificPositionTrajectory(t(1,1)); 
+%                                    genBlenTraj.getTrajectory(k).';
+%                                    afterTrajObj.getSpecificPositionTrajectory(afterTrajObj.times(1, 1))];
+%                 end
 
             end
             
+%             collectTrajsAndTimes = {trajs , obj.dTs};
+            
+        end
+        
+        function dummyVar = plotBlendedPositionTraj(obj, dim)
+        
+            dummyVar = [];
         end
     end
 end
