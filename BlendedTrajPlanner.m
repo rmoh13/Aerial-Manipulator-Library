@@ -83,13 +83,9 @@ classdef BlendedTrajPlanner < Trajectory
                                 j3(j,1)];
                 end
                 % afterTrajObj is the one we're currenty on technically
-                celldisp(wp)
-                t
                 genBlenTraj = MultiSegmentTrajPlanner(wp, t, dimensionsBeforeTraj);
-                genBlenTrajs = [];
-                for i = 1:dimensionsBeforeTraj
-                    genBlenTrajs = [genBlenTrajs ; genBlenTraj.getTrajectory(i)];
-                    collectTrajs = [collectTrajs ; genBlenTrajs];
+                for k = 1:dimensionsBeforeTraj
+                    collectTrajs = [collectTrajs ; genBlenTraj.getTrajectory(k).'];
                 end
             
             end
