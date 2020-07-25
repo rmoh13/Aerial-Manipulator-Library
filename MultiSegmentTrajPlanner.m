@@ -450,7 +450,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     i = i + 8;
                     timeIndex = timeIndex + 1;
                     if time >= timeInterval(1,1) && time <= timeInterval(1, end)
-                        traj = [xposTraj ; yPosTraj ; zposTraj];
+                        traj = [xposTraj ; yposTraj ; zposTraj];
                     end
                 end
             end
@@ -950,11 +950,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
                     xtraj = xposTraj;
                     ytraj = yposTraj;
-                    plot3(polyval(xtraj,t), polyval(ytraj,t), t)
+                    plot(polyval(xtraj,t), polyval(ytraj,t))
                     title("position vs time")
                     xlabel("x(t)")
                     ylabel("y(t)")
-                    zlabel("z = t")
                     i = i + 8;
                     timeIndex = timeIndex + 1;
                 end
@@ -1076,11 +1075,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     yposTraj = y(i:i+7).';
                     yvelTraj = polyder(yposTraj);
                     t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                    plot3(polyval(xvelTraj,t), polyval(yvelTraj,t), t)
+                    plot(polyval(xvelTraj,t), polyval(yvelTraj,t))
                     title("velocity vs time")
                     xlabel("x'(t)")
                     ylabel("y'(t)")
-                    zlabel("z = t")
                     i = i + 8;
                     timeIndex = timeIndex + 1;
                 end
@@ -1205,11 +1203,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     xaccelTraj = polyder(xvelTraj);
                     yaccelTraj = polyder(yvelTraj);
                     t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                    plot3(polyval(xaccelTraj,t), polyval(yaccelTraj,t), t)
+                    plot(polyval(xaccelTraj,t), polyval(yaccelTraj,t))
                     title("acceleration vs time")
                     xlabel("x''(t)")
                     ylabel("y''(t)")
-                    zlabel("z = t")
                     i = i + 8;
                     timeIndex = timeIndex + 1;
                 end
@@ -1340,11 +1337,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     xjerkTraj = polyder(xaccelTraj);
                     yjerkTraj = polyder(yaccelTraj);
                     t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                    plot3(polyval(xjerkTraj,t), polyval(yjerkTraj,t), t)
+                    plot(polyval(xjerkTraj,t), polyval(yjerkTraj,t))
                     title("jerk vs time")
                     xlabel("x'''(t)")
                     ylabel("y'''(t)")
-                    zlabel("z = t")
                     i = i + 8;
                     timeIndex = timeIndex + 1;
                 end
@@ -1415,7 +1411,7 @@ classdef MultiSegmentTrajPlanner < Trajectory
         end
         
         % this is basically for 1D only. dim isn't even necessary here
-        function dummyVar = plotAll(obj, dim)
+        function dummyVar = plot1DimAll(obj, dim)
             x = obj.getTrajectory(dim);
             times = obj.times;
             positions = obj.waypoints{dim,1};
@@ -1550,11 +1546,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
                     xtraj = xposTraj;
                     ytraj = yposTraj;
-                    plot3(polyval(xtraj,t), polyval(ytraj,t), t)
+                    plot(polyval(xtraj,t), polyval(ytraj,t))
                     title("position vs time")
                     xlabel("x(t)")
                     ylabel("y(t)")
-                    zlabel("z = t")
                     i = i + 8;
                     timeIndex = timeIndex + 1;
                 end
@@ -1577,11 +1572,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     yposTraj = y(i:i+7).';
                     yvelTraj = polyder(yposTraj);
                     t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                    plot3(polyval(xvelTraj,t), polyval(yvelTraj,t), t)
+                    plot(polyval(xvelTraj,t), polyval(yvelTraj,t))
                     title("velocity vs time")
                     xlabel("x'(t)")
                     ylabel("y'(t)")
-                    zlabel("z = t")
                     i = i + 8;
                     timeIndex = timeIndex + 1;
                 end
@@ -1606,11 +1600,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     xaccelTraj = polyder(xvelTraj);
                     yaccelTraj = polyder(yvelTraj);
                     t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                    plot3(polyval(xaccelTraj,t), polyval(yaccelTraj,t), t)
+                    plot(polyval(xaccelTraj,t), polyval(yaccelTraj,t))
                     title("acceleration vs time")
                     xlabel("x''(t)")
                     ylabel("y''(t)")
-                    zlabel("z = t")
                     i = i + 8;
                     timeIndex = timeIndex + 1;
                 end
@@ -1637,11 +1630,10 @@ classdef MultiSegmentTrajPlanner < Trajectory
                     xjerkTraj = polyder(xaccelTraj);
                     yjerkTraj = polyder(yaccelTraj);
                     t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                    plot3(polyval(xjerkTraj,t), polyval(yjerkTraj,t), t)
+                    plot(polyval(xjerkTraj,t), polyval(yjerkTraj,t))
                     title("jerk vs time")
                     xlabel("x'''(t)")
                     ylabel("y'''(t)")
-                    zlabel("z = t")
                     i = i + 8;
                     timeIndex = timeIndex + 1;
                 end
