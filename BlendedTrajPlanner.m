@@ -39,7 +39,7 @@ classdef BlendedTrajPlanner < Trajectory
             dTs = obj.dTs;
         end
         
-        function collectTrajs = generateTrajAndCoeff(obj, dim)
+        function collectTrajsAndTimes = generateTrajAndCoeff(obj)
             % dim here is the total # of dimensions of the system
             %{
             loop through obj.cellArrayTrajs, evaluate the current traj for 
@@ -54,28 +54,28 @@ classdef BlendedTrajPlanner < Trajectory
             dimensions)
             %}
             
-%             collectTrajsAndTimes = {};
-%             trajs = [];
-            collectTrajs = {};
+            collectTrajsAndTimes = {};
+            trajs = [];
+            %collectTrajs = {};
             wp = {};
             for i = 2:size(obj.cellArrayTrajs, 2)
                 beforeTrajObj = obj.cellArrayTrajs{1, i-1};
                 dimensionsBeforeTraj = beforeTrajObj.dimensions;
                 currentdT = obj.dTs(i-1,1);
                 endT = beforeTrajObj.times(end, 1);
-                t = [endT ; endT + currentdT];
+                t = [0 ; currentdT];
                 % we assume that all trajectories start from t = 0
                 afterTrajObj = obj.cellArrayTrajs{1, i};
                 % must be true: dimensionsAfterTraj == dimensionsBeforeTraj
                 dimensionsAfterTraj = afterTrajObj.dimensions; %#ok<*NASGU>
                 for j = 1:dimensionsBeforeTraj
-                    j1 = beforeTrajObj.getPosition(t(1,1));
+                    j1 = beforeTrajObj.getPosition(endT);
                     j2 = afterTrajObj.getPosition(afterTrajObj.times(1, 1));
                     wp{j, 1} = [j1(j,1); 
                                 j2(j,1)]; %#ok<*AGROW>
-                    j1 = beforeTrajObj.getVelocity(t(1,1));
-                    j2 = beforeTrajObj.getAcceleration(t(1,1));
-                    j3 = beforeTrajObj.getJerk(t(1,1));
+                    j1 = beforeTrajObj.getVelocity(endT);
+                    j2 = beforeTrajObj.getAcceleration(endT);
+                    j3 = beforeTrajObj.getJerk(endT);
                     wp{j, 2} = [j1(j,1); 
                                 j2(j,1);
                                 j3(j,1)];
@@ -88,21 +88,28 @@ classdef BlendedTrajPlanner < Trajectory
                 end
                 % afterTrajObj is the one we're currenty on technically
                  genBlenTraj = MultiSegmentTrajPlanner(wp, t, dimensionsBeforeTraj);
-                 collectTrajs{end + 1} = genBlenTraj;
-%                 for k = 1:dimensionsBeforeTraj
-%                     trajs = [beforeTrajObj.getSpecificPositionTrajectory(t(1,1)); 
-%                                    genBlenTraj.getTrajectory(k).';
-%                                    afterTrajObj.getSpecificPositionTrajectory(afterTrajObj.times(1, 1))];
-%                 end
+                 %collectTrajs{end + 1} = genBlenTraj;
+                 for k = 1:dimensionsBeforeTraj
+                     trajs = [beforeTrajObj.getSpecificPositionTrajectory(endT); 
+                             genBlenTraj.getSpecificPositionTrajectory(t(1,1));
+                             afterTrajObj.getSpecificPositionTrajectory(afterTrajObj.times(1, 1))];
+                 end
 
             end
             
-%             collectTrajsAndTimes = {trajs , obj.dTs};
+           collectTrajsAndTimes = {trajs , obj.dTs};
             
         end
         
         function dummyVar = plotBlendedPositionTraj(obj, dim)
-        
+            %{
+            loop through the output of generateTrajAndCoeff(obj, dim),
+            which is a cell array of the trajectories in order. Iterate
+            over every x trajs where x is the dimension of any of these
+            trajectory objects. 
+            %}
+            collectionTrajsTimes = obj.generateTrajAndCoeff();
+            trajs = collectionTrajsTimes{1,1};
             dummyVar = [];
         end
     end
