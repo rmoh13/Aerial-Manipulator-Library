@@ -39,7 +39,7 @@ classdef BlendedTrajPlanner < Trajectory
             dTs = obj.dTs;
         end
         
-        function collectTrajsAndTimes = generateTrajAndCoeff(obj)
+        function collectTrajs = generateTrajAndCoeff(obj)
             % dim here is the total # of dimensions of the system
             %{
             loop through obj.cellArrayTrajs, evaluate the current traj for 
@@ -54,7 +54,7 @@ classdef BlendedTrajPlanner < Trajectory
             dimensions)
             %}
             
-            collectTrajsAndTimes = {};
+            collectTrajs = {};
             trajs = [];
             %collectTrajs = {};
             wp = {};
@@ -88,16 +88,15 @@ classdef BlendedTrajPlanner < Trajectory
                 end
                 % afterTrajObj is the one we're currenty on technically
                  genBlenTraj = MultiSegmentTrajPlanner(wp, t, dimensionsBeforeTraj);
-                 %collectTrajs{end + 1} = genBlenTraj;
-                 for k = 1:dimensionsBeforeTraj
-                     trajs = [beforeTrajObj.getSpecificPositionTrajectory(endT); 
-                             genBlenTraj.getSpecificPositionTrajectory(t(1,1));
-                             afterTrajObj.getSpecificPositionTrajectory(afterTrajObj.times(1, 1))];
-                 end
-
+                 collectTrajs{end + 1} = genBlenTraj;
+%                  for k = 1:dimensionsBeforeTraj
+%                      trajs = [beforeTrajObj.getSpecificPositionTrajectory(endT); 
+%                              genBlenTraj.getSpecificPositionTrajectory(t(1,1));
+%                              afterTrajObj.getSpecificPositionTrajectory(afterTrajObj.times(1, 1))];
+%                  end
+                
             end
             
-           collectTrajsAndTimes = {trajs , obj.dTs};
             
         end
         
@@ -106,10 +105,19 @@ classdef BlendedTrajPlanner < Trajectory
             loop through the output of generateTrajAndCoeff(obj, dim),
             which is a cell array of the trajectories in order. Iterate
             over every x trajs where x is the dimension of any of these
-            trajectory objects. 
+            trajectory objects, plot.
+ 
+            plot the first trajectory from its start time (should be 0)
+            to its t_f (current global t_f). for the intermediate trajectories, 
+            plot the values of the trajectory from its start time to its own t_f but
+            against the values of t that go from current global t_f plus 
+            the duration of the current and the
             %}
-            collectionTrajsTimes = obj.generateTrajAndCoeff();
-            trajs = collectionTrajsTimes{1,1};
+            collectionTrajs = obj.generateTrajAndCoeff();
+            generatedTrajs = collectionTrajs{1,1};
+            for i = 1:size(collectionTrajs, 2)
+                currentTrajectory = 
+            end
             dummyVar = [];
         end
     end
