@@ -1,6 +1,7 @@
 classdef BlendedTrajPlanner < Trajectory
-    %BLENDEDTRAJPLANNER Summary of this class goes here
-    %   Detailed explanation goes here
+    %BLENDEDTRAJPLANNER 
+    %   Blends trajectories together by generating minimum snap
+    %   trajectories to go in between them.
     
     properties (Access = private)
         cellArrayTrajs
@@ -39,7 +40,7 @@ classdef BlendedTrajPlanner < Trajectory
             dTs = obj.dTs;
         end
         
-        function collectTrajs = generateTrajAndCoeff(obj)
+        function collectTrajs = generateTrajAndCoeff(obj, dim)
             % dim here is the total # of dimensions of the system
             %{
             loop through obj.cellArrayTrajs, evaluate the current traj for 
@@ -117,7 +118,7 @@ classdef BlendedTrajPlanner < Trajectory
             
         end
         
-        function dummyVar = plotBlendedPositionTraj(obj, dim)
+        function dummyVar = plotBlendedPosition(obj, dim)
             %{
             loop through the output of generateTrajAndCoeff(obj, dim),
             which is a cell array of the trajectories in order. Iterate
@@ -271,6 +272,7 @@ classdef BlendedTrajPlanner < Trajectory
                 dummyVar = [];
             end
         end
+        
     end
 end
 
