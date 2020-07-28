@@ -140,15 +140,15 @@ classdef BlendedTrajPlanner < Trajectory
                 for i = 1:size(collectionTrajs, 2)
                     currentTrajectory = collectionTrajs{1,i};
                     x = currentTrajectory.getTrajectory(dim);
-                    times = obj.times;
-                    positions = obj.waypoints{dim,1};
+                    times = currentTrajectory.times;
+                    positions = currentTrajectory.waypoints{dim,1};
                     numWP = size(positions, 1);
                     numTraj = numWP - 1;
                     sizeSol = size(x, 1);
                     j = 1;
                     timeIndex = 1;
                     while j < sizeSol
-                        posTraj = x(i:i+7).';
+                        posTraj = x(j:j+7).';
                         t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
                         y = posTraj;
                         plot(t, polyval(y,t))
@@ -160,99 +160,105 @@ classdef BlendedTrajPlanner < Trajectory
                     end
                 end
                 collectNames = cell(1, numTraj);
-                for i = 1:numTraj
-                    text = strcat("trajectory ", num2str(i));
-                    collectNames{1,i} = text;
+                for k = 1:numTraj
+                    text = strcat("trajectory ", num2str(k));
+                    collectNames{1,k} = text;
                 end
                 legend(collectNames);
                 hold off
                 dummyVar = [];
             elseif dim == 2
-                x = obj.getTrajectory(1);
-                y = obj.getTrajectory(2);
-                times = obj.times;
-                xpositions = obj.waypoints{1,1};
-                ypositions = obj.waypoints{2,1};
-                numWPx = size(xpositions, 1);
-                % these two should be equal
-                numWPy = size(ypositions, 1);
-                numXTraj = numWPx - 1;
-                % these two should be equal
-                numYTraj = numWPy - 1; %#ok<*NASGU>
-                sizeXSol = size(x, 1);
-                % these two should be equal
-                sizeYSol = size(y, 1);
-                i = 1;
-                timeIndex = 1;
                 subplot(1,1,1);
                 hold on
                 view(3);
-                while i < sizeXSol
-                    xposTraj = x(i:i+7).';
-                    yposTraj = y(i:i+7).';
-                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                    xtraj = xposTraj;
-                    ytraj = yposTraj;
-                    plot(polyval(xtraj,t), polyval(ytraj,t))
-                    title("position vs time")
-                    xlabel("x(t)")
-                    ylabel("y(t)")
-                    i = i + 8;
-                    timeIndex = timeIndex + 1;
+                for i = 1:size(collectionTrajs, 2)
+                    currentTrajectory = collectionTrajs{1,i};
+                    x = currentTrajectory.getTrajectory(1);
+                    y = currentTrajectory.getTrajectory(2);
+                    times = currentTrajectory.times;
+                    xpositions = currentTrajectory.waypoints{1,1};
+                    ypositions = currentTrajectory.waypoints{2,1};
+                    numWPx = size(xpositions, 1);
+                    % these two should be equal
+                    numWPy = size(ypositions, 1);
+                    numXTraj = numWPx - 1;
+                    % these two should be equal
+                    numYTraj = numWPy - 1; %#ok<*NASGU>
+                    sizeXSol = size(x, 1);
+                    % these two should be equal
+                    sizeYSol = size(y, 1);
+                    j = 1;
+                    timeIndex = 1;
+                    while j < sizeXSol
+                        xposTraj = x(j:j+7).';
+                        yposTraj = y(j:j+7).';
+                        t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                        xtraj = xposTraj;
+                        ytraj = yposTraj;
+                        plot(polyval(xtraj,t), polyval(ytraj,t))
+                        title("position vs time")
+                        xlabel("x(t)")
+                        ylabel("y(t)")
+                        j = j + 8;
+                        timeIndex = timeIndex + 1;
+                    end
                 end
                 collectNames = cell(1, numXTraj);
-                for i = 1:numXTraj
-                    text = strcat("trajectory ", num2str(i));
-                    collectNames{1,i} = text;
+                for k = 1:numXTraj
+                    text = strcat("trajectory ", num2str(k));
+                    collectNames{1,k} = text;
                 end
                 legend(collectNames);
                 hold off
                 dummyVar = [];
             elseif dim == 3
-                x = obj.getTrajectory(1);
-                y = obj.getTrajectory(2);
-                z = obj.getTrajectory(3);
-                times = obj.times;
-                xpositions = obj.waypoints{1,1};
-                ypositions = obj.waypoints{2,1};
-                zpositions = obj.waypoints{3,1};
-                numWPx = size(xpositions, 1);
-                % these three should be equal
-                numWPy = size(ypositions, 1);
-                numWPz = size(zpositions, 1);
-                numXTraj = numWPx - 1;
-                % these three should be equal
-                numYTraj = numWPy - 1; %#ok<*NASGU>
-                numZTraj = numWPz - 1; %#ok<*NASGU>
-                sizeXSol = size(x, 1);
-                % these three should be equal
-                sizeYSol = size(y, 1);
-                sizeZSol = size(z, 1);
-                i = 1;
-                timeIndex = 1;
                 subplot(1,1,1);
                 hold on
                 view(3);
-                while i < sizeXSol
-                    xposTraj = x(i:i+7).';
-                    yposTraj = y(i:i+7).';
-                    zposTraj = z(i:i+7).';
-                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
-                    xtraj = xposTraj;
-                    ytraj = yposTraj;
-                    ztraj = zposTraj;
-                    plot3(polyval(xtraj,t), polyval(ytraj,t), polyval(ztraj,t))
-                    title("position vs time")
-                    xlabel("x(t)")
-                    ylabel("y(t)")
-                    zlabel("z(t)")
-                    i = i + 8;
-                    timeIndex = timeIndex + 1;
+                for i = 1:size(collectionTrajs, 2)
+                    currentTrajectory = collectionTrajs{1,i};
+                    x = currentTrajectory.getTrajectory(1);
+                    y = currentTrajectory.getTrajectory(2);
+                    z = currentTrajectory.getTrajectory(3);
+                    times = currentTrajectory.times;
+                    xpositions = currentTrajectory.waypoints{1,1};
+                    ypositions = currentTrajectory.waypoints{2,1};
+                    zpositions = currentTrajectory.waypoints{3,1};
+                    numWPx = size(xpositions, 1);
+                    % these three should be equal
+                    numWPy = size(ypositions, 1);
+                    numWPz = size(zpositions, 1);
+                    numXTraj = numWPx - 1;
+                    % these three should be equal
+                    numYTraj = numWPy - 1; %#ok<*NASGU>
+                    numZTraj = numWPz - 1; %#ok<*NASGU>
+                    sizeXSol = size(x, 1);
+                    % these three should be equal
+                    sizeYSol = size(y, 1);
+                    sizeZSol = size(z, 1);
+                    j = 1;
+                    timeIndex = 1;
+                    while j < sizeXSol
+                        xposTraj = x(j:j+7).';
+                        yposTraj = y(j:j+7).';
+                        zposTraj = z(j:j+7).';
+                        t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                        xtraj = xposTraj;
+                        ytraj = yposTraj;
+                        ztraj = zposTraj;
+                        plot3(polyval(xtraj,t), polyval(ytraj,t), polyval(ztraj,t))
+                        title("position vs time")
+                        xlabel("x(t)")
+                        ylabel("y(t)")
+                        zlabel("z(t)")
+                        j = j + 8;
+                        timeIndex = timeIndex + 1;
+                    end
                 end
                 collectNames = cell(1, numXTraj);
-                for i = 1:numXTraj
-                    text = strcat("trajectory ", num2str(i));
-                    collectNames{1,i} = text;
+                for k = 1:numXTraj
+                    text = strcat("trajectory ", num2str(k));
+                    collectNames{1,k} = text;
                 end
                 legend(collectNames);
                 hold off
