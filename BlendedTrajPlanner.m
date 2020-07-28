@@ -54,9 +54,9 @@ classdef BlendedTrajPlanner < Trajectory
             dimensions)
             %}
             
+            tempCollectTrajs = {};
+            %trajs = [];
             collectTrajs = {};
-            trajs = [];
-            %collectTrajs = {};
             wp = {};
             for i = 2:size(obj.cellArrayTrajs, 2)
                 beforeTrajObj = obj.cellArrayTrajs{1, i-1};
@@ -88,13 +88,30 @@ classdef BlendedTrajPlanner < Trajectory
                 end
                 % afterTrajObj is the one we're currenty on technically
                  genBlenTraj = MultiSegmentTrajPlanner(wp, t, dimensionsBeforeTraj);
-                 collectTrajs{end + 1} = genBlenTraj;
+                 tempCollectTrajs{end + 1} = beforeTrajObj;
+                 tempCollectTrajs{end + 1} = genBlenTraj;
+                 tempCollectTrajs{end + 1} = afterTrajObj;
 %                  for k = 1:dimensionsBeforeTraj
 %                      trajs = [beforeTrajObj.getSpecificPositionTrajectory(endT); 
 %                              genBlenTraj.getSpecificPositionTrajectory(t(1,1));
 %                              afterTrajObj.getSpecificPositionTrajectory(afterTrajObj.times(1, 1))];
 %                  end
                 
+            end
+            
+            if size(tempCollectTrajs, 2) == 3
+                collectTrajs{1,1} = tempCollectTrajs{1,1};
+                collectTrajs{1,2} = tempCollectTrajs{1,2};
+                collectTrajs{1,3} = tempCollectTrajs{1,3};
+            elseif size(tempCollectTrajs, 2) > 3
+                collectTrajs{1,1} = tempCollectTrajs{1,1};
+                collectTrajs{1,2} = tempCollectTrajs{1,2};
+                collectTrajs{1,3} = tempCollectTrajs{1,3};
+                for i = 4:size(tempCollectTrajs, 2)
+                    collectTrajs{end + 1} = tempCollectTrajs{1,i + 1};
+                    collectTrajs{end + 1} = tempCollectTrajs{1,i + 2};
+                    i = i + 3; %#ok<FXSET>
+                end
             end
             
             
@@ -113,12 +130,134 @@ classdef BlendedTrajPlanner < Trajectory
             against the values of t that go from current global t_f plus 
             the duration of the current and the
             %}
+            %collectionTrajs = obj.generateTrajAndCoeff();
+            %generatedTrajs = collectionTrajs{1,1};
             collectionTrajs = obj.generateTrajAndCoeff();
-            generatedTrajs = collectionTrajs{1,1};
-            for i = 1:size(collectionTrajs, 2)
-                currentTrajectory = 
+            if dim == 1
+                subplot(1,1,1);
+                hold on
+                %for i = 1:size(collectionTrajs, 2) + size(obj.cellArrayTrajs, 2)
+                for i = 1:size(collectionTrajs, 2)
+                    currentTrajectory = collectionTrajs{1,i};
+                    x = currentTrajectory.getTrajectory(dim);
+                    times = obj.times;
+                    positions = obj.waypoints{dim,1};
+                    numWP = size(positions, 1);
+                    numTraj = numWP - 1;
+                    sizeSol = size(x, 1);
+                    j = 1;
+                    timeIndex = 1;
+                    while j < sizeSol
+                        posTraj = x(i:i+7).';
+                        t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                        y = posTraj;
+                        plot(t, polyval(y,t))
+                        title("position vs time")
+                        xlabel("t")
+                        ylabel("x(t)")
+                        j = j + 8;
+                        timeIndex = timeIndex + 1;
+                    end
+                end
+                collectNames = cell(1, numTraj);
+                for i = 1:numTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
+            elseif dim == 2
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                times = obj.times;
+                xpositions = obj.waypoints{1,1};
+                ypositions = obj.waypoints{2,1};
+                numWPx = size(xpositions, 1);
+                % these two should be equal
+                numWPy = size(ypositions, 1);
+                numXTraj = numWPx - 1;
+                % these two should be equal
+                numYTraj = numWPy - 1; %#ok<*NASGU>
+                sizeXSol = size(x, 1);
+                % these two should be equal
+                sizeYSol = size(y, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                view(3);
+                while i < sizeXSol
+                    xposTraj = x(i:i+7).';
+                    yposTraj = y(i:i+7).';
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    xtraj = xposTraj;
+                    ytraj = yposTraj;
+                    plot(polyval(xtraj,t), polyval(ytraj,t))
+                    title("position vs time")
+                    xlabel("x(t)")
+                    ylabel("y(t)")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numXTraj);
+                for i = 1:numXTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
+            elseif dim == 3
+                x = obj.getTrajectory(1);
+                y = obj.getTrajectory(2);
+                z = obj.getTrajectory(3);
+                times = obj.times;
+                xpositions = obj.waypoints{1,1};
+                ypositions = obj.waypoints{2,1};
+                zpositions = obj.waypoints{3,1};
+                numWPx = size(xpositions, 1);
+                % these three should be equal
+                numWPy = size(ypositions, 1);
+                numWPz = size(zpositions, 1);
+                numXTraj = numWPx - 1;
+                % these three should be equal
+                numYTraj = numWPy - 1; %#ok<*NASGU>
+                numZTraj = numWPz - 1; %#ok<*NASGU>
+                sizeXSol = size(x, 1);
+                % these three should be equal
+                sizeYSol = size(y, 1);
+                sizeZSol = size(z, 1);
+                i = 1;
+                timeIndex = 1;
+                subplot(1,1,1);
+                hold on
+                view(3);
+                while i < sizeXSol
+                    xposTraj = x(i:i+7).';
+                    yposTraj = y(i:i+7).';
+                    zposTraj = z(i:i+7).';
+                    t = linspace(times(timeIndex,1),times(timeIndex + 1, 1));
+                    xtraj = xposTraj;
+                    ytraj = yposTraj;
+                    ztraj = zposTraj;
+                    plot3(polyval(xtraj,t), polyval(ytraj,t), polyval(ztraj,t))
+                    title("position vs time")
+                    xlabel("x(t)")
+                    ylabel("y(t)")
+                    zlabel("z(t)")
+                    i = i + 8;
+                    timeIndex = timeIndex + 1;
+                end
+                collectNames = cell(1, numXTraj);
+                for i = 1:numXTraj
+                    text = strcat("trajectory ", num2str(i));
+                    collectNames{1,i} = text;
+                end
+                legend(collectNames);
+                hold off
+                dummyVar = [];
             end
-            dummyVar = [];
         end
     end
 end
