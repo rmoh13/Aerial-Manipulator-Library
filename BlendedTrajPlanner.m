@@ -159,8 +159,14 @@ classdef BlendedTrajPlanner < Trajectory
                         timeIndex = timeIndex + 1;
                     end
                 end
-                collectNames = cell(1, numTraj);
-                for k = 1:numTraj
+%                 collectNames = cell(1, numTraj);
+%                 for k = 1:numTraj
+%                     text = strcat("trajectory ", num2str(k));
+%                     collectNames{1,k} = text;
+%                 end
+%                 legend(collectNames);
+                collectNames = cell(1, size(collectionTrajs, 2));
+                for k = 1:size(collectionTrajs, 2)
                     text = strcat("trajectory ", num2str(k));
                     collectNames{1,k} = text;
                 end
@@ -203,8 +209,8 @@ classdef BlendedTrajPlanner < Trajectory
                         timeIndex = timeIndex + 1;
                     end
                 end
-                collectNames = cell(1, numXTraj);
-                for k = 1:numXTraj
+                collectNames = cell(1, size(collectionTrajs, 2));
+                for k = 1:size(collectionTrajs, 2)
                     text = strcat("trajectory ", num2str(k));
                     collectNames{1,k} = text;
                 end
@@ -255,8 +261,8 @@ classdef BlendedTrajPlanner < Trajectory
                         timeIndex = timeIndex + 1;
                     end
                 end
-                collectNames = cell(1, numXTraj);
-                for k = 1:numXTraj
+                collectNames = cell(1, size(collectionTrajs, 2));
+                for k = 1:size(collectionTrajs, 2)
                     text = strcat("trajectory ", num2str(k));
                     collectNames{1,k} = text;
                 end
