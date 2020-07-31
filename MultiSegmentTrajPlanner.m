@@ -197,46 +197,22 @@ classdef MultiSegmentTrajPlanner < Trajectory
             for i = 3:size(waypoints, 2) - 1
                 timeIndex = i - 1;
                 for k = 1:size(waypoints{dim, i}, 1)
-                     if k == 1 && ~isnan(waypoints{dim,i}(k, 1))
-                         der1Traj = obj.calcDerTraj(times, timeIndex, 1);
+                    if ~isnan(waypoints{dim,i}(k, 1))
+                         derIthTraj = obj.calcDerTraj(times, timeIndex, i);
                          currRow = zeros(1, 8 * (numWP - 1));
-                         currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der1Traj, 2)) ...
-                         = der1Traj;
+                         currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(derIthTraj, 2)) ...
+                         = derIthTraj;
                          AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-                     elseif k == 2 && ~isnan(waypoints{dim,i}(k, 1))
-                         der2Traj = obj.calcDerTraj(times, timeIndex, 2);
-                         currRow = zeros(1, 8 * (numWP - 1));
-                         currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der2Traj, 2)) ...
-                         = der2Traj;
-                         AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-                     elseif k == 3 && ~isnan(waypoints{dim,i}(k, 1))
-                         der3Traj = obj.calcDerTraj(times, timeIndex, 3);
-                         currRow = zeros(1, 8 * (numWP - 1));
-                         currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(der3Traj, 2)) ...
-                         = der3Traj;
-                         AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-                     end         
+                    end        
                 end
                 for k = 1:size(waypoints{dim, i}, 1)
-                     if k == 1 && ~isnan(waypoints{dim,i}(k, 1))
-                         der1Traj = obj.calcDerTraj(times, timeIndex, 1);
+                     if ~isnan(waypoints{dim,i}(k, 1))
+                         derIthTraj = obj.calcDerTraj(times, timeIndex, i);
                          currRow = zeros(1, 8 * (numWP - 1));
-                         currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der1Traj, 2)) ...
-                         = der1Traj;
+                         currRow(1, 8*(i-3) + 1 : 8*(i-3) + size(derIthTraj, 2)) ...
+                         = derIthTraj;
                          AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-                     elseif k == 2 && ~isnan(waypoints{dim,i}(k, 1))
-                         der2Traj = obj.calcDerTraj(times, timeIndex, 2);
-                         currRow = zeros(1, 8 * (numWP - 1));
-                         currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der2Traj, 2)) ...
-                         = der2Traj;
-                         AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-                     elseif k == 3 && ~isnan(waypoints{dim,i}(k, 1))
-                         der3Traj = obj.calcDerTraj(times, timeIndex, 3);
-                         currRow = zeros(1, 8 * (numWP - 1));
-                         currRow(1, 8*(i-2) + 1 : 8*(i-2) + size(der3Traj, 2)) ...
-                         = der3Traj;
-                         AInBetween = [AInBetween ; currRow]; %#ok<*AGROW>
-                     end         
+                    end      
                 end
             end
             A = [A ; AInBetween];
@@ -244,25 +220,13 @@ classdef MultiSegmentTrajPlanner < Trajectory
             AValsLastRow = [];
             lastWNaNndex = size(waypoints, 2) - 1;
             for k = 1:size(waypoints{dim, size(waypoints, 2)}, 1)
-                 if k == 1 && ~isnan(waypoints{dim,size(waypoints, 2)}(k, 1))
-                     der1Traj = obj.calcDerTraj(times, lastWNaNndex, 1);
+                if ~isnan(waypoints{dim,size(waypoints, 2)}(k, 1))
+                     derKthTraj = obj.calcDerTraj(times, lastWNaNndex, k);
                      currRow = zeros(1, 8 * (numWP - 1));
-                     currRow(1, 8*(lastWNaNndex-2) + 1 : 8*(lastWNaNndex-2) + size(der1Traj, 2)) ...
-                     = der1Traj;
+                     currRow(1, 8*(lastWNaNndex-2) + 1 : 8*(lastWNaNndex-2) + size(derKthTraj, 2)) ...
+                     = derKthTraj;
                      AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
-                 elseif k == 2 && ~isnan(waypoints{dim,size(waypoints, 2)}(k, 1))
-                     der2Traj = obj.calcDerTraj(times, lastWNaNndex, 2);
-                     currRow = zeros(1, 8 * (numWP - 1));
-                     currRow(1, 8*(lastWNaNndex-2) + 1 : 8*(lastWNaNndex-2) + size(der2Traj, 2)) ...
-                     = der2Traj;
-                     AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
-                 elseif k == 3 && ~isnan(waypoints{dim,size(waypoints, 2)}(k, 1))
-                     der3Traj = obj.calcDerTraj(times, lastWNaNndex, 3);
-                     currRow = zeros(1, 8 * (numWP - 1));
-                     currRow(1, 8*(lastWNaNndex-2) + 1 : 8*(lastWNaNndex-2) + size(der3Traj, 2)) ...
-                     = der3Traj;
-                     AValsLastRow = [AValsLastRow ; currRow]; %#ok<*AGROW>
-                 end         
+                end
             end
             A = [A ; AValsLastRow];
     
