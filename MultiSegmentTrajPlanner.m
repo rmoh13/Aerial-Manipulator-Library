@@ -172,15 +172,9 @@ classdef MultiSegmentTrajPlanner < Trajectory
             AValsFirstRow = [];
             % do the first row of the corresponding value constraints in A
             for i = 1:size(waypoints{dim, 2}, 1)
-                if i == 1 && ~isnan(waypoints{dim,2}(i, 1))
-                    AValsFirstRow = [AValsFirstRow ; obj.calcDerTraj(times, 1, 1) , ...  
-                    zeros(1, size(A, 2) - size(obj.calcDerTraj(times, 1, 1), 2))]; 
-                elseif i == 2 && ~isnan(waypoints{dim,2}(i, 1))
-                    AValsFirstRow = [AValsFirstRow ; obj.calcDerTraj(times, 1, 2) , ...
-                    zeros(1, size(A, 2) - size(obj.calcDerTraj(times, 1, 2), 2))]; 
-                elseif i == 3 && ~isnan(waypoints{dim,2}(i, 1))
-                    AValsFirstRow = [AValsFirstRow ; obj.calcDerTraj(times, 1, 3) , ... 
-                    zeros(1, size(A, 2) - size(obj.calcDerTraj(times, 1, 3), 2))]; 
+                if ~isnan(waypoints{dim,2}(i, 1))
+                    AValsFirstRow = [AValsFirstRow ; obj.calcDerTraj(times, 1, i) , ... 
+                    zeros(1, size(A, 2) - size(obj.calcDerTraj(times, 1, i), 2))]; 
                 end
             end
             A = [A ; AValsFirstRow];
